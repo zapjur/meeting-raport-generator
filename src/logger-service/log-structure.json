@@ -1,0 +1,10 @@
+{
+  "timestamp": "2024-11-15T12:34:56Z",
+  "service": "Transcription Service",
+  "level": "ERROR",
+  "message": "Failed to process transcription",
+  "details": {
+    "userID": "12345",
+    "error": "File not found"
+  }
+}

@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=goland,intellij,java,maven,python,react,node,dotenv,vs,matlab
 
 mongo-data/
+logger-service-binary
 
 ### dotenv ###
 .env
