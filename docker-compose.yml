@@ -31,3 +31,15 @@ services:
     depends_on:
       - mongodb
       - rabbitmq
+      - orchestrator-service
+
+  orchestrator-service:
+    build:
+      context: ./src/orchestrator-service
+      dockerfile: Dockerfile
+    container_name: orchestrator-service
+    depends_on:
+      - mongodb
+      - rabbitmq
+    ports:
+      - "8080:8080"

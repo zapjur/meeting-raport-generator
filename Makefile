@@ -1,4 +1,4 @@
-LOGGER_BINARY=logger-service-binary
+DOCKER_COMPOSE_FILE=docker-compose.yml
 
 ## up: starts all containers in the background without forcing build
 up:
@@ -6,8 +6,8 @@ up:
 	docker-compose up -d
 	@echo "Docker containers started!"
 
-## up_build: stops docker-compose (if running), builds the logger service and starts docker-compose
-up_build: build_logger
+## up_build: stops docker-compose (if running), builds all images and starts docker compose
+up_build:
 	@echo "Stopping Docker containers (if running)..."
 	docker-compose down
 	@echo "Building and starting Docker containers..."
@@ -20,20 +20,7 @@ down:
 	docker-compose down
 	@echo "Done!"
 
-## build_logger: builds the logger binary as a Linux executable
-build_logger:
-	@echo "Building logger binary..."
-	cd ./src/logger-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LOGGER_BINARY} .
-	@echo "Logger binary built!"
-
-## run_logger: runs the logger service locally
-run_logger:
-	@echo "Running logger service locally..."
-	cd ./src/logger-service && go run main.go
-	@echo "Logger service is running!"
-
-## test_logger: runs tests for the logger service
-test_logger:
-	@echo "Running tests for logger service..."
-	cd ./src/logger-service && go test ./...
-	@echo "Logger service tests completed!"
+## logs: shows logs from all services
+logs:
+	@echo "Fetching logs from all services..."
+	docker-compose logs -f
