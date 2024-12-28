@@ -12,6 +12,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - ./mongo-data:/data/db
+      - ./transcriptions.json:/docker-entrypoint-initdb.d/transcriptions.json
 
   rabbitmq:
     image: rabbitmq:management

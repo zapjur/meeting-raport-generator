@@ -24,3 +24,8 @@ down:
 logs:
 	@echo "Fetching logs from all services..."
 	docker-compose logs -f
+
+init-mongo:
+	@echo "Initializing MongoDB..."
+	docker exec -it mongodb mongoimport --db database --collection transcriptions --file /docker-entrypoint-initdb.d/transcriptions.json --jsonArray -u admin -p password --authenticationDatabase admin
+	@echo "MongoDB initialized!"

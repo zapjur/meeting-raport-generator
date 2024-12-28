@@ -1,0 +1,842 @@
+[
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Okay.",
+    "timestamp_start": "0:00:00",
+    "timestamp_end": "0:00:00.675000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Okay, does anyone want to see Steve's feedback from the specification? Is there much more in it than you?",
+    "timestamp_start": "0:00:00.675000",
+    "timestamp_end": "0:00:09.534375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Is there much more in it than he said yesterday?",
+    "timestamp_start": "0:00:09.534375",
+    "timestamp_end": "0:00:13.635000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " not really just what he's talking about, duplication of effort.",
+    "timestamp_start": "0:00:13.635000",
+    "timestamp_end": "0:00:18.275625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Like duplication of effort and stuff and yeah, saying that we should maybe think about having a prototype for week 6 which is next week.",
+    "timestamp_start": "0:00:18.275625",
+    "timestamp_end": "0:00:31.353750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " Thanks for watching!",
+    "timestamp_start": "0:00:31.353750",
+    "timestamp_end": "0:00:31.590000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": "",
+    "timestamp_start": "0:00:31.590000",
+    "timestamp_end": "0:00:31.961250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " So, you should probably prioritize our packages.",
+    "timestamp_start": "0:00:31.961250",
+    "timestamp_end": "0:00:37.209375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Yeah, I'd say if for the prototype if you just like wherever possible chunk in the stuff that we have Pre-annotators and stuff and for the stuff that we don't have pre annotated right like a stupid baseline Then we should probably be able to basically that means we focus on on the interface first sort of so that we take the the Ready-made parts and just see how we get them work together in the interface the way we wanted and then we have a working Prototype and then we can go back and replace Pieces either by our own components or by more sophisticated common components of our own so it's probably feasible Thing is I'm away this weekend",
+    "timestamp_start": "0:00:37.209375",
+    "timestamp_end": "0:01:15.735000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " Yeah.",
+    "timestamp_start": "0:01:15.735000",
+    "timestamp_end": "0:01:16.140000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " I mean, if we just want to have some data for the user face, it could even be random data.",
+    "timestamp_start": "0:01:16.140000",
+    "timestamp_end": "0:01:24.746250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Oh yeah, but also the similarity thing, like just my matrix itself for my stuff. I think I can do that fairly quickly because I have the algorithms. Yeah, I think today's meeting is really the one where we sort of settle down the data structure. And as soon as we have that, probably after today's meeting, we then actually need to go back first of all to look at night XML to see how far that which we want is compatible with that, with night XML offers us. And then just sort of everyone make sure everyone understands the interface.",
+    "timestamp_start": "0:01:24.746250",
+    "timestamp_end": "0:01:58.293750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " Yes.",
+    "timestamp_start": "0:01:58.293750",
+    "timestamp_end": "0:01:58.766250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": "",
+    "timestamp_start": "0:01:58.766250",
+    "timestamp_end": "0:01:58.968750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " So I think if today we decide on what data we want to have now, and later maybe even today we go and look at NiteXML or some of us look at NiteXML in a bit more detail, just trying to make some sense of that code and see how does the representation work in their system. And then sort of with that knowledge we should be able to then say, okay, that type of NiteXML data we want to load into it and this is how everyone can access it. And then we should be able to go from there.",
+    "timestamp_start": "0:01:58.968750",
+    "timestamp_end": "0:02:27.369375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " We should be able to go from there. Has anyone actually looked at the Java code for that? No.",
+    "timestamp_start": "0:02:27.369375",
+    "timestamp_end": "0:02:33.528750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " I've looked at the documentation and seen enough to make me think that we want to use the Nitex Metal framework because they have a good event model that synchronizes the data and every display element. So that takes a lot of work away from us. That would be a reason for staying within their framework.",
+    "timestamp_start": "0:02:33.528750",
+    "timestamp_end": "0:02:52.631250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " using their general classes, but beyond that I haven't looked at it at all.",
+    "timestamp_start": "0:02:52.631250",
+    "timestamp_end": "0:02:56.208750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " which is something we should really do. Who actually like, for this whole discussion, I mean who of us is doing stuff that is happening online and who of us is doing stuff that's happening offline? Like my data is coming.",
+    "timestamp_start": "0:02:56.208750",
+    "timestamp_end": "0:03:09.455625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Yeah.",
+    "timestamp_start": "0:03:09.455625",
+    "timestamp_end": "0:03:09.843750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Hmm?",
+    "timestamp_start": "0:03:09.843750",
+    "timestamp_end": "0:03:10.096875",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " the basic word importance is offline as well. The combined measure might not be if we want to wait what the user has typed into the search.",
+    "timestamp_start": "0:03:10.096875",
+    "timestamp_end": "0:03:19.462500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " of minus.",
+    "timestamp_start": "0:03:19.462500",
+    "timestamp_end": "0:03:19.901250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker B",
+    "transcription": " Okay.",
+    "timestamp_start": "0:03:19.901250",
+    "timestamp_end": "0:03:20.255625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Okay.",
+    "timestamp_start": "0:03:20.255625",
+    "timestamp_end": "0:03:20.795625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker B",
+    "transcription": " Mine's going to be mostly using the offline, but the actual stuff it's doing will be online. It won't be very processor intensive or memory intensive.",
+    "timestamp_start": "0:03:20.795625",
+    "timestamp_end": "0:03:31.089375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Okay.",
+    "timestamp_start": "0:03:31.089375",
+    "timestamp_end": "0:03:31.376250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Basically apart from the display module, the display itself, we don't have an extremely high degree of interaction between our modules that create the stuff and the interface. The interface is mainly while it's running just working on data that's just loaded from a file, I guess.",
+    "timestamp_start": "0:03:31.376250",
+    "timestamp_end": "0:03:50.141250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " They didn't.",
+    "timestamp_start": "0:03:50.141250",
+    "timestamp_end": "0:03:50.748750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " I don't know about the search functionality, that might be online, depends how it's going to work.",
+    "timestamp_start": "0:03:50.748750",
+    "timestamp_end": "0:03:56.030625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Yeah, yeah, the search is sort of a strange beast anyway, because for the search, we're leaving the NiteXML framework. But that's still sort of that's good. That means that at least we don't have the type of situation where somebody has to do a billion calculations on data online. Because that would make it a lot more like that would mean that our interface for the data would have to be a lot more careful about how it performs and everything. And nobody is modifying that data at online time at all, it seems. Nobody is making any changes to the actual data online.",
+    "timestamp_start": "0:03:56.030625",
+    "timestamp_end": "0:04:31.366875",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker B",
+    "transcription": " I think so.",
+    "timestamp_start": "0:04:31.366875",
+    "timestamp_end": "0:04:32.143125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " So that's actually making it a lot easier. That basically means our browser really is a viewer mostly, which isn't doing much with the data except for sort of selecting a piece of fit and displaying it.",
+    "timestamp_start": "0:04:32.143125",
+    "timestamp_end": "0:04:42.706875",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker B",
+    "transcription": " Are we still gonna go for dumping it into a database? Hmm? Are we still gonna dump it into a database?",
+    "timestamp_start": "0:04:42.706875",
+    "timestamp_end": "0:04:47.212500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Hmm?",
+    "timestamp_start": "0:04:47.212500",
+    "timestamp_end": "0:04:47.415000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Well, some parts relevant for the search, yes. I'd say so.",
+    "timestamp_start": "0:04:47.415000",
+    "timestamp_end": "0:04:51.178125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker B",
+    "transcription": " Because if we are, I reckon we should all read our classes out of the database. It'll be so much easier.",
+    "timestamp_start": "0:04:51.178125",
+    "timestamp_end": "0:04:56.291250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Hmm?",
+    "timestamp_start": "0:04:56.291250",
+    "timestamp_end": "0:04:56.544375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker B",
+    "transcription": " well if we're going to dump the part of it into a database anyway we might as well dump all the fields we want into the database, calculate everything from there so we don't even have to worry that much about the underlying XML representation, we can just query it",
+    "timestamp_start": "0:04:56.544375",
+    "timestamp_end": "0:05:11.934375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Yeah, but nobody of us is doing much of searching from the data in the online stage. And for altogether, like the display itself, I think we are easier if it's sitting on the XML than if it's sitting on the SQL stuff, because if it's sitting on the XML, we have the night XML.",
+    "timestamp_start": "0:05:11.934375",
+    "timestamp_end": "0:05:28.522500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " framework with all its functionality for synchronizing through all the different levels whenever there's a change, whenever something's moving forward and stuff, and we can just more or less look at their code, like how their player moves forward and how that moving forward is represented in different windows and stuff. So I think in the actual browser itself, I don't want to sit on the SQL if we can sit on the XML because sitting on the XML we have so much help. And for like the calculations that we're doing, apart from the search, it seems everyone needs some special representations anyway.",
+    "timestamp_start": "0:05:28.522500",
+    "timestamp_end": "0:06:01.361250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " within the uh... we should try and store everything next level for as well",
+    "timestamp_start": "0:06:01.361250",
+    "timestamp_end": "0:06:06.609375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Even our results. Yeah, in the night XML format. So with the timestamps and stuff, so that it's easy to tie together things.",
+    "timestamp_start": "0:06:06.609375",
+    "timestamp_end": "0:06:15.114375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Yeah.",
+    "timestamp_start": "0:06:15.114375",
+    "timestamp_end": "0:06:15.637500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " What I'm like, what we have to think about is if we go with this multi-level idea, like this idea that sort of, if you start with the whole meeting series as one entity, as one thing that you display, as one whole sort of, that then the individual chunks are the individual meetings. Whereas, and then you can click on a meeting and then sort of the meeting is the whole thing and the chunks are the individual segments. That means sort of we have multiple levels of representation, which we probably...",
+    "timestamp_start": "0:06:15.637500",
+    "timestamp_end": "0:06:47.008125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " If we do it this way, like we have to discuss that if we do it this way, then we should probably find some abstraction model so that the interface, in the sense like deals with it as if it's the same, so that the interface doesn't really have to worry whether it's a meeting in the whole meeting series or a segment within a meeting, you know what I mean? And that's probably stuff that we have to sort of like process twice then, like for example that like the summary of a meeting within the whole meeting corpus or meeting series. Is meeting series a good word for that? I don't really know how to call it. You know what I mean? Like not the whole corpus, but every meeting that has to do with one topic. Yeah, that makes sense. So in the meeting series, so that a summary for a meeting within the meeting series is sort of compiled offline by a summary module, and that is separate from a summary of a segment within a meeting. Because I don't think we can...",
+    "timestamp_start": "0:06:47.008125",
+    "timestamp_end": "0:07:38.173125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Mm-hmm.",
+    "timestamp_start": "0:07:38.173125",
+    "timestamp_end": "0:07:38.493750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": "",
+    "timestamp_start": "0:07:38.493750",
+    "timestamp_end": "0:07:38.932500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Yeah, that makes sense.",
+    "timestamp_start": "0:07:38.932500",
+    "timestamp_end": "0:07:39.793125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " we can well we don't even need to do that because we got our information density calculated offline so all we do is treat the whole lot as one massive document I mean it's not going to be so big that we can't load in information density for every utterance I mean just summarize based on that",
+    "timestamp_start": "0:07:39.793125",
+    "timestamp_end": "0:07:56.398125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " I thought we would just have one big summary with only different importance levels displayed on it and depending on what our zoom level is we just display a part of it.",
+    "timestamp_start": "0:07:56.398125",
+    "timestamp_end": "0:08:13.340625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " So are we doing that at all levels?",
+    "timestamp_start": "0:08:13.340625",
+    "timestamp_end": "0:08:15.736875",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " I mean we would have one very big thing offline and from that we would just select what we are displaying.",
+    "timestamp_start": "0:08:15.736875",
+    "timestamp_end": "0:08:22.588125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " and just have different...",
+    "timestamp_start": "0:08:22.588125",
+    "timestamp_end": "0:08:23.921250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " fine greatness level sort of.",
+    "timestamp_start": "0:08:23.921250",
+    "timestamp_end": "0:08:25.963125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Yes, so for example you would give a high value to those sequences you want to display in the meeting series summary. So the only thing that... Cut off. Yeah.",
+    "timestamp_start": "0:08:25.963125",
+    "timestamp_end": "0:08:38.113125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " So the only thing that would happen basically if I double click, let's say from the whole meeting series on a single meeting, is that the zoom level changes, like the start and the end position changes and the zoom level changes.",
+    "timestamp_start": "0:08:38.113125",
+    "timestamp_end": "0:08:51.984375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " That was what I saw. I think you can do it online.",
+    "timestamp_start": "0:08:51.984375",
+    "timestamp_end": "0:08:55.359375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " I thought we couldn't do that. I was under the impression that we couldn't do that because we couldn't load the data for all that.",
+    "timestamp_start": "0:08:55.359375",
+    "timestamp_end": "0:09:01.586250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " Bye.",
+    "timestamp_start": "0:09:01.586250",
+    "timestamp_end": "0:09:01.856250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " But I don't know, I mean that-",
+    "timestamp_start": "0:09:01.856250",
+    "timestamp_end": "0:09:03.256875",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " and i think there's really much pointing out when it's just gonna feed off in the end information density measure basically and that's all calculated offline so we have really doing is sorting list is that computationally hard part",
+    "timestamp_start": "0:09:03.256875",
+    "timestamp_end": "0:09:19.608750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " you",
+    "timestamp_start": "0:09:19.608750",
+    "timestamp_end": "0:09:19.693125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " you",
+    "timestamp_start": "0:09:19.693125",
+    "timestamp_end": "0:09:19.794375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " So I'm not sure if I got it.",
+    "timestamp_start": "0:09:19.794375",
+    "timestamp_end": "0:09:22.308750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " well like the ideas where calculating our information density all offline first for every utterance in the whole corpus right so all you do is you say if you're looking at series of meetings you say well our whole document comprises of all these stuck together and then all you have to do is sort them by information density like maybe weighted with the search terms so extract them I think it's too slow to do",
+    "timestamp_start": "0:09:22.308750",
+    "timestamp_end": "0:09:51.080625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Mm-hmm.",
+    "timestamp_start": "0:09:51.080625",
+    "timestamp_end": "0:09:51.468750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Right.",
+    "timestamp_start": "0:09:51.468750",
+    "timestamp_end": "0:09:51.840000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Stop.",
+    "timestamp_start": "0:09:51.840000",
+    "timestamp_end": "0:09:52.261875",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Mm-hmm.",
+    "timestamp_start": "0:09:52.261875",
+    "timestamp_end": "0:09:52.582500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " I was just worried about the total memory complexity of it, but I could really admit I just sort of like took that from something that Jonathan once said about not loading everything but maybe I was just wrong about it. How many are there? I think...",
+    "timestamp_start": "0:09:52.582500",
+    "timestamp_end": "0:10:06.015000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " But I think the difference might be that we would just want to have the words and that's not so much what he meant was not possibly loading everything was that you load all the annotation stuff, all the sound files, all...",
+    "timestamp_start": "0:10:06.015000",
+    "timestamp_end": "0:10:24.003750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " that you load.",
+    "timestamp_start": "0:10:24.003750",
+    "timestamp_end": "0:10:25.657500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": "",
+    "timestamp_start": "0:10:25.657500",
+    "timestamp_end": "0:10:25.860000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " So what we have is we would have a word.",
+    "timestamp_start": "0:10:25.860000",
+    "timestamp_end": "0:10:30.534375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " like we would have words with some priority levels? And that would basically be it already, because even the selection, would the summaries automatically feed from just how prioritized an individual word or how prioritized an individual utterances? Or are the summaries sort of refined from that and made by a machine to make sentences and stuff? Or are they just sort of taking out the words of the highest priority and then the words of the second highest priority?",
+    "timestamp_start": "0:10:30.534375",
+    "timestamp_end": "0:10:54.783750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " On the utterance level I was thinking. So the utterance is with the highest mean inflation. Are we doing it on the-",
+    "timestamp_start": "0:10:54.783750",
+    "timestamp_end": "0:11:01.905000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Yeah.",
+    "timestamp_start": "0:11:01.905000",
+    "timestamp_end": "0:11:02.343750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " But anything, of course, does have Android.",
+    "timestamp_start": "0:11:02.343750",
+    "timestamp_end": "0:11:02.715000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Are we doing it on the whole thing on the utterance level or are we doing it on world level like the information density calculation?",
+    "timestamp_start": "0:11:02.715000",
+    "timestamp_end": "0:11:07.288125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " Well the trouble with doing it on the word level is if you want the audio to sync up you've got no way of getting in and extracting just that word. I mean it's impossible.",
+    "timestamp_start": "0:11:07.288125",
+    "timestamp_end": "0:11:14.898750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " I think we have started end times for words actually. For every single word. Yeah, but it might sound crazy in the player. We should really, maybe we can do that together at some point today that we check out how the player works. I don't think the player will do that. But there's maybe some merit in altogether doing it on a natural level.",
+    "timestamp_start": "0:11:14.898750",
+    "timestamp_end": "0:11:29.090625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " Yeah, but it might...",
+    "timestamp_start": "0:11:29.090625",
+    "timestamp_end": "0:11:31.554375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " Maybe.",
+    "timestamp_start": "0:11:31.554375",
+    "timestamp_end": "0:11:31.942500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " I don't think the player will do it.",
+    "timestamp_start": "0:11:31.942500",
+    "timestamp_end": "0:11:33.815625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " I think the point is...",
+    "timestamp_start": "0:11:33.815625",
+    "timestamp_end": "0:11:34.338750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " I'm getting quite lost.",
+    "timestamp_start": "0:11:34.338750",
+    "timestamp_end": "0:11:36.870000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " one because what's our difference between the importance measure and the skimming? I mean do we do both or is it the same thing?",
+    "timestamp_start": "0:11:36.870000",
+    "timestamp_end": "0:11:50.235000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Yeah.",
+    "timestamp_start": "0:11:50.235000",
+    "timestamp_end": "0:11:50.488125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " well the skimming is going to use the importance.",
+    "timestamp_start": "0:11:50.488125",
+    "timestamp_end": "0:11:53.576250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " you",
+    "timestamp_start": "0:11:53.576250",
+    "timestamp_end": "0:11:53.660625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker B",
+    "transcription": " Okay.",
+    "timestamp_start": "0:11:53.660625",
+    "timestamp_end": "0:11:54.116250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " But like at first, it's just going to be on the...",
+    "timestamp_start": "0:11:54.116250",
+    "timestamp_end": "0:11:56.411250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " But when we talk about summaries, we talk about this, about skimming and not about... Well mostly skimming.",
+    "timestamp_start": "0:11:56.411250",
+    "timestamp_end": "0:12:03.363750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " Well, mostly skimming, yeah.",
+    "timestamp_start": "0:12:03.363750",
+    "timestamp_end": "0:12:04.747500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " But also about the displays, I mean the displays in the text body, in the latest draft that we had, we came up with the idea that it isn't displaying art trends, far trends, but it's also displaying a summarized version. In you know like below the graph, the part? Yeah. Maybe.",
+    "timestamp_start": "0:12:04.747500",
+    "timestamp_end": "0:12:22.567500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Yeah.",
+    "timestamp_start": "0:12:22.567500",
+    "timestamp_end": "0:12:22.820625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Yeah.",
+    "timestamp_start": "0:12:22.820625",
+    "timestamp_end": "0:12:23.461875",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Yeah, but isn't that the skimmy? Isn't that the skimmy? Oh yeah.",
+    "timestamp_start": "0:12:23.461875",
+    "timestamp_end": "0:12:27.123750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": "",
+    "timestamp_start": "0:12:27.123750",
+    "timestamp_end": "0:12:27.174375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Oh yeah, it's just like there's audio skimming and there's displayed skimming.",
+    "timestamp_start": "0:12:27.174375",
+    "timestamp_end": "0:12:31.713750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Yeah, but it's just the same data.",
+    "timestamp_start": "0:12:31.713750",
+    "timestamp_end": "0:12:33.384375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Yeah. Maybe there's some merit of going altogether for utterance level and not even bother to calculate. I mean, if you have to do it internally, then you can do it, but maybe like, not even store the importance levels for individual words and just sort of rank utterances as a whole.",
+    "timestamp_start": "0:12:33.384375",
+    "timestamp_end": "0:12:48.791250",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " as a whole.",
+    "timestamp_start": "0:12:48.791250",
+    "timestamp_end": "0:12:57.144375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " you",
+    "timestamp_start": "0:12:57.144375",
+    "timestamp_end": "0:12:57.178125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Yeah.",
+    "timestamp_start": "0:12:57.178125",
+    "timestamp_end": "0:12:57.819375",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " It might be better skimming and less memory required at the same time. And I mean, if you know how to do it for individual words, then you can just, in the worst case, if you can't find anything else, just sort of make the mean of the words over the utterance. You know what I mean?",
+    "timestamp_start": "0:12:57.819375",
+    "timestamp_end": "0:13:09.783750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker C",
+    "transcription": " Not quite. So what did you want to do? You just wanted to assign...",
+    "timestamp_start": "0:13:09.783750",
+    "timestamp_end": "0:13:14.728125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " What's the smallest chunk at the moment you're thinking of assigning an importance measure to? Is it a word or is it an utterance?",
+    "timestamp_start": "0:13:14.728125",
+    "timestamp_end": "0:13:20.431875",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker B",
+    "transcription": " I thought about words.",
+    "timestamp_start": "0:13:20.431875",
+    "timestamp_end": "0:13:22.102500",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " So we're thinking of like maybe just storing it on an patterns level.",
+    "timestamp_start": "0:13:22.102500",
+    "timestamp_end": "0:13:27.030000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " because it's less stuff to store probably for Dave in the audio playing and for in the display it's probably better if you have whole utterances than I don't know like what it's like if you just take single words out of utterances that probably doesn't make any sense at all whereas if you just show important utterances but the utterances as a whole it makes more sense. So it doesn't actually make a difference for your algorithm because it just means that if you work on a word level then we just mean it over there.",
+    "timestamp_start": "0:13:27.030000",
+    "timestamp_end": "0:13:50.840625",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker E",
+    "transcription": " Yeah, I think we also thought about combining that matter with the matter as I get from hotspots and so on. So that would also be on assurance level. So that's good anyway.",
+    "timestamp_start": "0:13:50.840625",
+    "timestamp_end": "0:14:06.433125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " They are.",
+    "timestamp_start": "0:14:06.433125",
+    "timestamp_end": "0:14:07.125000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " So that's good anyway, yeah, because that makes it a lot easier than to put it on after.",
+    "timestamp_start": "0:14:07.125000",
+    "timestamp_end": "0:14:11.023125",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " You don't need to be calculated at word level though because otherwise there won't be enough occurrences of the terms to make any... Oh yeah, no.",
+    "timestamp_start": "0:14:11.023125",
+    "timestamp_end": "0:14:18.735000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": " Oh yeah, how does it mean internally, I don't know, but you probably have to work on word levels for importance, but there should be ways of easily going from a word level to an utterance level.",
+    "timestamp_start": "0:14:18.735000",
+    "timestamp_end": "0:14:29.265000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker D",
+    "transcription": " Yeah, I reckon you can just mute it over the sensor.",
+    "timestamp_start": "0:14:29.265000",
+    "timestamp_end": "0:14:31.695000",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker A",
+    "transcription": "",
+    "timestamp_start": "0:14:31.695000",
+    "timestamp_end": "0:14:31.863750",
+    "meeting_id": "867297"
+  },
+  {
+    "speaker_id": "Speaker B",
+    "transcription": " But how about those words which don't carry any meaning at all, the um on the earth and something like that?",
+    "timestamp_start": "0:14:31.863750",
+    "timestamp_end": "0:14:39.609375",
+    "meeting_id": "867297"
+  }
+]
