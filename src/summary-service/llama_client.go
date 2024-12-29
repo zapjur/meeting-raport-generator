@@ -2,12 +2,16 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 const (
@@ -35,6 +39,12 @@ type ResponseBody struct {
 	} `json:"choices"`
 }
 
+type Summary struct {
+	MeetingID   string    `bson:"meeting_id"`
+	SummaryText string    `bson:"summary_text"`
+	CreatedAt   time.Time `bson:"created_at"`
+}
+
 func (app *Config) generateSummary() {
 	apiKey := os.Getenv("GROQ_API_KEY")
 	if apiKey == "" {
@@ -46,10 +56,13 @@ func (app *Config) generateSummary() {
 		log.Fatalf("Error fetching transcriptions: %v", err)
 	}
 
-	prompt := `[
-		"Summarize the following transcription of the meeting:
-		 ` + transcription + `",
-	]`
+	prompt := `
+Please provide a precise summary of the following meeting transcription:
+
+` + transcription + `
+
+Return only the summary without any additional text or metadata.
+`
 
 	messages := []Message{
 		{Role: "system", Content: "You are a helpful assistant."},
@@ -95,8 +108,32 @@ func (app *Config) generateSummary() {
 	}
 
 	if len(response.Choices) > 0 {
-		fmt.Printf("Model response: %s\n", response.Choices[0].Message.Content)
+		summaryText := response.Choices[0].Message.Content
+
+		err = app.saveSummaryToDB("867297", summaryText)
+		if err != nil {
+			log.Fatalf("Error saving summary to MongoDB: %v", err)
+		}
+
+		fmt.Println("Summary saved successfully.")
 	} else {
 		fmt.Println("No response from model.")
 	}
+}
+
+func (app *Config) saveSummaryToDB(meetingID, summaryText string) error {
+	collection := app.MongoClient.Database("database").Collection("summaries")
+
+	filter := bson.M{"meeting_id": meetingID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"summary_text": summaryText,
+			"created_at":   time.Now(),
+		},
+	}
+
+	opts := options.Update().SetUpsert(true)
+	_, err := collection.UpdateOne(context.TODO(), filter, update, opts)
+	return err
 }
