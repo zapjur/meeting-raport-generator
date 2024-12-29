@@ -17,11 +17,11 @@ type Transcription struct {
 	MeetingID      string `bson:"meeting_id"`
 }
 
-func (app *Config) fetchTranscriptions() (string, error) {
+func (app *Config) fetchTranscriptions(meetingId string) (string, error) {
 	database := app.MongoClient.Database("database")
 	collection := database.Collection("transcriptions")
 
-	filter := bson.M{"meeting_id": "867297"}
+	filter := bson.M{"meeting_id": meetingId}
 	opts := options.Find().SetSort(bson.D{{Key: "timestamp_start", Value: 1}})
 	cursor, err := collection.Find(context.TODO(), filter, opts)
 	if err != nil {

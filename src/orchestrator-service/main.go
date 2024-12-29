@@ -93,7 +93,7 @@ func main() {
 	defer rabbitChannel.Close()
 
 	// Declare necessary queues
-	queues := []string{"logs_queue"}
+	queues := []string{"logs_queue", "summary_queue"}
 	for _, queue := range queues {
 		_, err = rabbitChannel.QueueDeclare(
 			queue, // queue name
@@ -118,6 +118,10 @@ func main() {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
 		Handler: app.routes(),
+	}
+
+	if err = app.sendSummaryTask("867297"); err != nil {
+		log.Printf("Error sending summary task: %v", err)
 	}
 
 	log.Printf("Orchestrator is ready and listening on port %s.", webPort)

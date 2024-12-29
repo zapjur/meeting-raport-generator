@@ -45,13 +45,13 @@ type Summary struct {
 	CreatedAt   time.Time `bson:"created_at"`
 }
 
-func (app *Config) generateSummary() {
+func (app *Config) generateSummary(meetingId string) {
 	apiKey := os.Getenv("GROQ_API_KEY")
 	if apiKey == "" {
 		log.Fatal("API key is not set.")
 	}
 
-	transcription, err := app.fetchTranscriptions()
+	transcription, err := app.fetchTranscriptions(meetingId)
 	if err != nil {
 		log.Fatalf("Error fetching transcriptions: %v", err)
 	}
@@ -110,7 +110,7 @@ Return only the summary without any additional text or metadata.
 	if len(response.Choices) > 0 {
 		summaryText := response.Choices[0].Message.Content
 
-		err = app.saveSummaryToDB("867297", summaryText)
+		err = app.saveSummaryToDB(meetingId, summaryText)
 		if err != nil {
 			log.Fatalf("Error saving summary to MongoDB: %v", err)
 		}

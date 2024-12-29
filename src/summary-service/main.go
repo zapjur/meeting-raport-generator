@@ -77,24 +77,24 @@ func main() {
 	defer mongoClient.Disconnect(context.Background())
 
 	// Connect to RabbitMQ
-	//rabbitMQURI := "amqp://guest:guest@rabbitmq:5672/"
-	//rabbitConn, err := connectToRabbitMQ(rabbitMQURI, retries, retryDelay)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//defer rabbitConn.Close()
-	//
-	//rabbitChannel, err := rabbitConn.Channel()
-	//if err != nil {
-	//	log.Fatal("RabbitMQ channel error:", err)
-	//}
-	//defer rabbitChannel.Close()
+	rabbitMQURI := "amqp://guest:guest@rabbitmq:5672/"
+	rabbitConn, err := connectToRabbitMQ(rabbitMQURI, retries, retryDelay)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rabbitConn.Close()
+
+	rabbitChannel, err := rabbitConn.Channel()
+	if err != nil {
+		log.Fatal("RabbitMQ channel error:", err)
+	}
+	defer rabbitChannel.Close()
 
 	app := &Config{
-		MongoClient: mongoClient,
-		//RabbitConn:    rabbitConn,
-		//RabbitChannel: rabbitChannel,
+		MongoClient:   mongoClient,
+		RabbitConn:    rabbitConn,
+		RabbitChannel: rabbitChannel,
 	}
 
-	app.generateSummary()
+	app.processSummaryTasks()
 }
