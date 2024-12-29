@@ -69,7 +69,7 @@ func main() {
 	const retryDelay = 5 * time.Second
 
 	// Connect to MongoDB
-	mongoURI := "mongodb://admin:password@localhost:27017"
+	mongoURI := "mongodb://admin:password@mongodb:27017"
 	mongoClient, err := connectToMongoDB(mongoURI, retries, retryDelay)
 	if err != nil {
 		log.Fatal(err)
