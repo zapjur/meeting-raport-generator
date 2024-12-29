@@ -116,8 +116,36 @@ Return only the summary without any additional text or metadata.
 		}
 
 		fmt.Println("Summary saved successfully.")
+
+		logMessage := LogMessage{
+			Timestamp: time.Now().UTC().Format(time.RFC3339),
+			Service:   "summary",
+			Level:     "INFO",
+			Message:   fmt.Sprintf("Summary with meeting_id: %s saved successfully", meetingId),
+			Details: map[string]interface{}{
+				"meeting_id": meetingId,
+				"queue":      "summary_queue",
+			},
+		}
+		if err = app.publishLog(logMessage); err != nil {
+			log.Printf("Error publishing log to RabbitMQ: %v", err)
+		}
 	} else {
 		fmt.Println("No response from model.")
+
+		logMessage := LogMessage{
+			Timestamp: time.Now().UTC().Format(time.RFC3339),
+			Service:   "summary",
+			Level:     "WARNING",
+			Message:   fmt.Sprintf("No response from model, meeting_id: %s", meetingId),
+			Details: map[string]interface{}{
+				"meeting_id": meetingId,
+				"queue":      "summary_queue",
+			},
+		}
+		if err = app.publishLog(logMessage); err != nil {
+			log.Printf("Error publishing log to RabbitMQ: %v", err)
+		}
 	}
 }
 
