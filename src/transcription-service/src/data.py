@@ -24,6 +24,7 @@ class Transcription:
     @staticmethod
     def from_dict(data: dict):
         return Transcription(
+            
             id=str(data.get('_id')),
             speaker_id=data['speaker_id'],
             transcription=data['transcription'],
