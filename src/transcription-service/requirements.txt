@@ -1,0 +1,9 @@
+pyannote.audio
+pyannote.core
+scipy
+torch
+numpy
+python-dotenv
+openai-whisper
+pydub
+pymongo
