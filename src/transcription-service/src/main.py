@@ -21,17 +21,6 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 
 # LOAD MODELS
 diarization_pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token=HF_TOKEN)
-
-ChatGPT
-
-Udostępnij
-Powiedziałeś(-aś):
-# LOAD REFERENCE EMBEDDINGS
-embeddings = mongo_client.find_document(embeddings_collection, {"meeting_id": meeting_id})
-if embeddings is None:
-    reference_embeddings = {}
-else:
-    reference_embeddings = 
 embedding_model = Model.from_pretrained(
     model="pyannote/embedding", use_auth_token=HF_TOKEN, checkpoint="pyannote/embedding"
 )
@@ -181,10 +170,9 @@ def get_latest_ts_end(meeting_id):
 
 def main(meeting_id, file_path):
     global reference_embeddings
-    get_reference_embeddings(meeting_id)
     audio_file = get_audio_file_from_volume(file_path)
-    
     diarization_result = process_audio_chunk(audio_file)
+    get_reference_embeddings(meeting_id)
     
     for start, end, speaker in diarization_result:
         
