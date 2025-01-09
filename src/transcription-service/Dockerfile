@@ -10,6 +10,12 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN python -c "import whisper; whisper.load_model('medium')"
+RUN python -c "from pyannote.audio import Pipeline; \
+    Pipeline.from_pretrained('pyannote/speaker-diarization'); \
+    Pipeline.from_pretrained('pyannote/segmentation'); \
+    Pipeline.from_pretrained('pyannote/embedding')"
+
 COPY . .
 
 CMD ["python", "src/main.py"]

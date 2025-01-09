@@ -118,9 +118,11 @@ def export_results_to_file(results, output_file):
 
 def process_audio_chunk(audio_file):
     """Przetwarza fragment audio, dopasowując ID mówców do całej rozmowy"""
+    print(f"Starting diarization for file: {audio_file}")
     global reference_embeddings
 
     diarization = diarization_pipeline(audio_file)
+    print("Diarization completed.")
 
     current_embeddings = extract_speaker_embeddings(audio_file, diarization)
 
@@ -139,8 +141,20 @@ def process_audio_chunk(audio_file):
 
 
 def get_audio_file_from_volume(filepath, extensions=[".wav"]):
-    #TODO POBRAC NAGRANIE Z WOLUMENU 
-    return None
+
+    if not os.path.isfile(filepath):
+        print(f"File {filepath} does not exist.")
+        return None
+
+    if not any(filepath.endswith(ext) for ext in extensions):
+        print(f"Invalid file format. Supported formats: {extensions}")
+        return None
+
+    try:
+        return filepath
+    except Exception as e:
+        print(f"Error reading file: {e}")
+        return None
 
 def extract_audio_segment(audio_file, start, end):
     """
@@ -169,6 +183,7 @@ def get_latest_ts_end(meeting_id):
     return latest_transcription[0]["timestamp_end"] if latest_transcription.count() > 0 else 0
 
 def main(meeting_id, file_path):
+    print(f"Processing meeting_id={meeting_id}, file_path={file_path}")
     global reference_embeddings
     audio_file = get_audio_file_from_volume(file_path)
     diarization_result = process_audio_chunk(audio_file)
@@ -187,11 +202,12 @@ def main(meeting_id, file_path):
     )
     mongo_client.upsert_embedding(embeddings_collection, updated_embedding)
 
-    
+
 def callback(ch, method, properties, body):
-    """Funkcja wywoływana po otrzymaniu wiadomości z kolejki"""
+    print("Callback triggered. Received message...")
     try:
         message = json.loads(body)
+        print(f"Message received: {message}")
         file_path = message.get("file_path")
         meeting_id = message.get("meeting_id")
 
@@ -200,35 +216,59 @@ def callback(ch, method, properties, body):
             return
 
         print(f"Received task for file: {file_path}, meeting ID: {meeting_id}")
-        main(file_path, meeting_id)
+        main(meeting_id, file_path)
 
-        ch.basic_ack(delivery_tag=method.delivery_tag)  # Potwierdzamy przetworzenie wiadomości
     except Exception as e:
-        print(f"Error processing message: {e}")
-        ch.basic_nack(delivery_tag=method.delivery_tag)  # Informujemy RabbitMQ o błędzie
+        print(f"Error in callback: {e}")
+    finally:
+        ch.basic_ack(delivery_tag=method.delivery_tag)  # Potwierdzenie przetworzenia wiadomości
+
+def simple_callback(ch, method, properties, body):
+    print(f"Received message: {body}")
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 # Połączenie z RabbitMQ
 def start_consumer():
-    RABBITMQ_HOST = "amqp://guest:guest@rabbitmq:5672/"
+    RABBITMQ_USER = "guest"
+    RABBITMQ_PASS = "guest"
+    RABBITMQ_HOST = "rabbitmq"
     RABBITMQ_QUEUE = "transcription_queue"
+    max_retries = 5
+    retry_delay = 5
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
-    channel = connection.channel()
-
-    channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)  
-
-    channel.basic_consume(
-        queue=RABBITMQ_QUEUE,
-        on_message_callback=callback
+    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
+    connection_params = pika.ConnectionParameters(
+        host=RABBITMQ_HOST,
+        port=5672,
+        credentials=credentials
     )
 
-    print(f"Waiting for messages in queue '{RABBITMQ_QUEUE}'. Press Ctrl+C to exit.")
-    try:
-        channel.start_consuming()
-    except KeyboardInterrupt:
-        print("Stopping consumer...")
-        channel.stop_consuming()
-        connection.close()
+    for attempt in range(max_retries):
+        try:
+            connection = pika.BlockingConnection(connection_params)
+            channel = connection.channel()
+            channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)
+
+            channel.basic_consume(
+                queue=RABBITMQ_QUEUE,
+                on_message_callback=callback,
+                auto_ack=False  # Auto-ack set to False for manual acknowledgments
+            )
+
+            print(f"Waiting for messages in queue '{RABBITMQ_QUEUE}'. Press Ctrl+C to exit.")
+            channel.start_consuming()
+
+        except pika.exceptions.AMQPConnectionError as e:
+            print(f"RabbitMQ connection failed: {e}. Retrying in {retry_delay} seconds...")
+            time.sleep(retry_delay)
+
+        except KeyboardInterrupt:
+            print("Stopping consumer...")
+            if 'connection' in locals() and connection.is_open:
+                connection.close()  # Zamknięcie połączenia tylko przy ręcznym przerwaniu
+            break
+
 
 if __name__ == "__main__":
     start_consumer()
