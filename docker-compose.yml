@@ -56,3 +56,15 @@ services:
       - orchestrator-service
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
+
+  transcription-service:
+    build:
+      context: ./src/transcription-service
+      dockerfile: Dockerfile
+    container_name: transcription-service
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - orchestrator-service
+    environment:
+      - HF_TOKEN=${HF_TOKEN}

@@ -4,12 +4,12 @@ from typing import List
 
 @dataclass
 class Transcription:
-    id: Optional[str] = None
     speaker_id: str
     transcription: str
     timestamp_start: str
     timestamp_end: str
     meeting_id: str
+    id: Optional[str] = None
 
     def to_dict(self):
         return {  
@@ -35,9 +35,9 @@ class Transcription:
     
 @dataclass
 class Embedding:
-    id: Optional[str] = None
     meeting_id: str
     embeddings: Dict[str, List[float]]
+    id: Optional[str] = None
 
     def to_dict(self):
         return {
