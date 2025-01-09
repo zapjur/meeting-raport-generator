@@ -13,7 +13,6 @@ import os
 import json
 import mongo_client
 
-
 # LOAD TOKEN
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -188,14 +187,14 @@ def main(meeting_id, file_path):
     audio_file = get_audio_file_from_volume(file_path)
     diarization_result = process_audio_chunk(audio_file)
     get_reference_embeddings(meeting_id)
-    
+
     for start, end, speaker in diarization_result:
-        
+
         speaker_audio_file = extract_audio_segment(audio_file, start, end)
-        latest_timestamp_end = get_latest_ts_end(meeting_id) 
+        latest_timestamp_end = get_latest_ts_end(meeting_id)
         transcription = transcript(speaker_audio_file, speaker, latest_timestamp_end)
         mongo_client.insert_document(transcriptions_collection, transcription.to_dict())
-    
+
     updated_embedding = Embedding(
         meeting_id=meeting_id,
         embeddings=reference_embeddings
@@ -218,57 +217,40 @@ def callback(ch, method, properties, body):
         print(f"Received task for file: {file_path}, meeting ID: {meeting_id}")
         main(meeting_id, file_path)
 
+        # Potwierdzenie przetworzenia wiadomości
+        ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         print(f"Error in callback: {e}")
-    finally:
-        ch.basic_ack(delivery_tag=method.delivery_tag)  # Potwierdzenie przetworzenia wiadomości
+        # Odrzuć wiadomość bez ponownego umieszczania jej w kolejce
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
-def simple_callback(ch, method, properties, body):
-    print(f"Received message: {body}")
-    ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
 # Połączenie z RabbitMQ
-def start_consumer():
-    RABBITMQ_USER = "guest"
-    RABBITMQ_PASS = "guest"
-    RABBITMQ_HOST = "rabbitmq"
-    RABBITMQ_QUEUE = "transcription_queue"
-    max_retries = 5
-    retry_delay = 5
+def main_consumer():
+    credentials = pika.PlainCredentials('guest', 'guest')
 
-    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
-    connection_params = pika.ConnectionParameters(
-        host=RABBITMQ_HOST,
-        port=5672,
-        credentials=credentials
-    )
+    print("Connecting to RabbitMQ...")
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+    host='rabbitmq',
+    port=5672,
+    credentials=credentials,
+    connection_attempts=5,
+    retry_delay=5,
+ ))
+    print("Connected to RabbitMQ")
 
-    for attempt in range(max_retries):
-        try:
-            connection = pika.BlockingConnection(connection_params)
-            channel = connection.channel()
-            channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)
+    channel = connection.channel()
 
-            channel.basic_consume(
-                queue=RABBITMQ_QUEUE,
-                on_message_callback=callback,
-                auto_ack=False  # Auto-ack set to False for manual acknowledgments
-            )
+    channel.queue_declare(queue='transcription_queue', durable=True)
 
-            print(f"Waiting for messages in queue '{RABBITMQ_QUEUE}'. Press Ctrl+C to exit.")
-            channel.start_consuming()
+    channel.basic_qos(prefetch_count=1)
 
-        except pika.exceptions.AMQPConnectionError as e:
-            print(f"RabbitMQ connection failed: {e}. Retrying in {retry_delay} seconds...")
-            time.sleep(retry_delay)
+    channel.basic_consume(queue='transcription_queue', on_message_callback=callback, auto_ack=True)
 
-        except KeyboardInterrupt:
-            print("Stopping consumer...")
-            if 'connection' in locals() and connection.is_open:
-                connection.close()  # Zamknięcie połączenia tylko przy ręcznym przerwaniu
-            break
+    print("Waiting for messages. To exit press CTRL+C")
+    channel.start_consuming()
 
 
 if __name__ == "__main__":
-    start_consumer()
+    main_consumer()
