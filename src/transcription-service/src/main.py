@@ -6,14 +6,13 @@ from scipy.spatial.distance import cdist
 from transciption import transcript
 from dotenv import load_dotenv
 from data import Embedding
+import pika
 import torch
 import numpy as np
 import os
 import json
 import mongo_client
 
-# MOCK DATA - TO BE OBATINED FROM QUEUE
-meeting_id = "some meeting id"
 
 # LOAD TOKEN
 load_dotenv()
@@ -34,6 +33,7 @@ embeddings_collection = mongo_client.connect_to_mongo_collection("embeddings")
 embeddings = mongo_client.find_document(embeddings_collection, {"meeting_id": meeting_id})
 if embeddings is None:
     reference_embeddings = {}
+
 else:
     reference_embeddings = embeddings.get("embeddings", {})
 
@@ -137,7 +137,7 @@ def process_audio_chunk(audio_file):
     return normalized_diarization
 
 
-def get_audio_file_from_volume(extensions=[".wav"]):
+def get_audio_file_from_volume(filepath, extensions=[".wav"]):
     #TODO POBRAC NAGRANIE Z WOLUMENU 
     return None
 
@@ -161,22 +161,22 @@ def extract_audio_segment(audio_file, start, end):
     segment.export(segment_path, format="wav")
     return segment_path
 
-def get_latest_ts_end():
+def get_latest_ts_end(meeting_id):
     latest_transcription = transcriptions_collection.find(
             {"meeting_id": meeting_id}
         ).sort("timestamp_end", -1).limit(1) 
     return latest_transcription[0]["timestamp_end"] if latest_transcription.count() > 0 else 0
 
-def main():
+def main(meeting_id, file_path):
     global reference_embeddings
-    audio_file = get_audio_file_from_volume()
+    audio_file = get_audio_file_from_volume(file_path)
     
     diarization_result = process_audio_chunk(audio_file)
     
     for start, end, speaker in diarization_result:
         
         speaker_audio_file = extract_audio_segment(audio_file, start, end)
-        latest_timestamp_end = get_latest_ts_end() 
+        latest_timestamp_end = get_latest_ts_end(meeting_id) 
         transcription = transcript(speaker_audio_file, speaker, latest_timestamp_end)
         mongo_client.insert_document(transcriptions_collection, transcription.to_dict())
     
@@ -187,5 +187,47 @@ def main():
     mongo_client.upsert_embedding(embeddings_collection, updated_embedding)
 
     
+def callback(ch, method, properties, body):
+    """Funkcja wywoływana po otrzymaniu wiadomości z kolejki"""
+    try:
+        message = json.loads(body)
+        file_path = message.get("file_path")
+        meeting_id = message.get("meeting_id")
+
+        if not file_path or not meeting_id:
+            print("Invalid message format. Skipping...")
+            return
+
+        print(f"Received task for file: {file_path}, meeting ID: {meeting_id}")
+        main(file_path, meeting_id)
+
+        ch.basic_ack(delivery_tag=method.delivery_tag)  # Potwierdzamy przetworzenie wiadomości
+    except Exception as e:
+        print(f"Error processing message: {e}")
+        ch.basic_nack(delivery_tag=method.delivery_tag)  # Informujemy RabbitMQ o błędzie
+
+# Połączenie z RabbitMQ
+def start_consumer():
+    RABBITMQ_HOST = "amqp://guest:guest@rabbitmq:5672/"
+    RABBITMQ_QUEUE = "transcription_queue"
+
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
+    channel = connection.channel()
+
+    channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)  
+
+    channel.basic_consume(
+        queue=RABBITMQ_QUEUE,
+        on_message_callback=callback
+    )
+
+    print(f"Waiting for messages in queue '{RABBITMQ_QUEUE}'. Press Ctrl+C to exit.")
+    try:
+        channel.start_consuming()
+    except KeyboardInterrupt:
+        print("Stopping consumer...")
+        channel.stop_consuming()
+        connection.close()
+
 if __name__ == "__main__":
-    main()
+    start_consumer()
