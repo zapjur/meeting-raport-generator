@@ -2,7 +2,9 @@ version: "3.9"
 
 services:
   mongodb:
-    image: mongo:latest
+    build:
+      context: ./src/mongodb
+      dockerfile: Dockerfile
     container_name: mongodb
     ports:
       - "27017:27017"
