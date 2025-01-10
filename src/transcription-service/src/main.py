@@ -13,6 +13,7 @@ import numpy as np
 import os
 import json
 import mongo_client
+import time
 
 # Configure logging
 logging.basicConfig(
@@ -47,7 +48,7 @@ def get_reference_embeddings(meeting_id):
 
 
 def extract_speaker_embeddings(audio_file, diarization_result):
-    """Oblicza embeddingi mówców dla fragmentów"""
+    """Oblicza embeddingi mowcow dla fragmentow"""
     embeddings = {}
     audio = Audio()
     audio_duration = audio.get_duration(audio_file)
@@ -81,7 +82,7 @@ def extract_speaker_embeddings(audio_file, diarization_result):
 
 
 def match_speakers(current_embeddings, reference_embeddings, threshold=0.3):
-    """Dopasowuje mówców do referencji na podstawie embeddingów"""
+    """Dopasowuje mowcow do referencji na podstawie embeddingow"""
     speaker_mapping = {}
 
     if len(reference_embeddings) == 0:
@@ -235,7 +236,7 @@ def main(meeting_id, file_path):
         raise
 
 
-def callback(ch, method, properties, body):
+def process_message(ch, method, properties, body):
     logging.info("Callback triggered. Received message...")
     try:
         message = json.loads(body)
@@ -265,40 +266,39 @@ def callback(ch, method, properties, body):
         else:
             logging.warning("Channel is closed. Cannot ack message.")
 
-
-
-
 def main_consumer():
     credentials = pika.PlainCredentials('guest', 'guest')
 
-    try:
-        logging.info("Connecting to RabbitMQ...")
-        connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host='rabbitmq',
-            port=5672,
-            credentials=credentials,
-            connection_attempts=5,
-            retry_delay=5,
-            socket_timeout=10,
-            heartbeat=30
-        ))
-        logging.info("Connected to RabbitMQ")
-    except Exception as e:
-        logging.error(f"Error connecting to RabbitMQ: {e}")
-        return
+    while True:
+        try:
+            logging.info("Connecting to RabbitMQ...")
+            connection = pika.BlockingConnection(pika.ConnectionParameters(
+                host='rabbitmq',
+                port=5672,
+                credentials=credentials,
+                connection_attempts=5,
+                retry_delay=5,
+                socket_timeout=10,
+                heartbeat=900
+            ))
+            channel = connection.channel()
+            logging.info("Connected to RabbitMQ")
 
-    channel = connection.channel()
+            channel.queue_declare(queue='transcription_queue', durable=True)
+            logging.info("Queue declared.")
 
-    logging.info("Declaring queue...")
-    channel.queue_declare(queue='transcription_queue', durable=True)
-    logging.info("Queue declared.")
+            channel.basic_qos(prefetch_count=1)
+            channel.basic_consume(queue='transcription_queue', on_message_callback=process_message, auto_ack=False, consumer_tag="transcription_consumer")
 
-    channel.basic_qos(prefetch_count=1)
+            logging.info("Waiting for messages. To exit press CTRL+C")
+            channel.start_consuming()
 
-    channel.basic_consume(queue='transcription_queue', on_message_callback=callback, auto_ack=False, consumer_tag="transcription_consumer")
+        except (pika.exceptions.ConnectionClosedByBroker,
+                pika.exceptions.AMQPChannelError,
+                pika.exceptions.AMQPConnectionError) as e:
+            logging.error(f"Connection error: {e}. Retrying in 5 seconds...")
+            time.sleep(5)
 
-    logging.info("Waiting for messages. To exit press CTRL+C")
-    channel.start_consuming()
 
 
 if __name__ == "__main__":

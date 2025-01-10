@@ -2,8 +2,26 @@ import whisper
 from datetime import timedelta
 from data import Transcription 
 import mongo_client
+import torch
+import logging
 
-model = whisper.load_model("medium")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+if torch.cuda.is_available():
+    device = torch.device("cuda")  # GPU z CUDA (NVIDIA)
+elif torch.backends.mps.is_available() and torch.backends.mps.is_built():
+    device = torch.device("mps")  # Multi-Process Service (MPS)
+else:
+    device = torch.device("cpu")
+
+logging.info(f"Using device: {device}")
+
+model = whisper.load_model("medium").to(device)
 
 def transcript(audio_file, speaker_id, latest_timestamp_end, meeting_id):
     """

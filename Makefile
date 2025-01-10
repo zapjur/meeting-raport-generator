@@ -7,11 +7,20 @@ up:
 	@echo "Docker containers started!"
 
 ## up_build: stops docker-compose (if running), builds all images and starts docker compose
-up_build: clean
+up_build:
 	@echo "Stopping Docker containers (if running)..."
 	docker-compose down
 	@echo "Building and starting Docker containers..."
 	docker-compose up --build -d
+	@echo "Docker containers built and started!"
+
+up_build_clean: clean up_build
+
+up_gpu:
+	@echo "Stopping Docker containers (if running)..."
+	docker-compose down
+	@echo "Building and starting Docker containers..."
+	docker-compose -f docker-compose.yml up --build -d --gpus all
 	@echo "Docker containers built and started!"
 
 ## down: stops all containers
