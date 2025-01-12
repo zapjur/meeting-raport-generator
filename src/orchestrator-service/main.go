@@ -120,34 +120,38 @@ func main() {
 		Handler: app.routes(),
 	}
 
-	if err = app.sendSummaryTask("867297"); err != nil {
-		logMessage := LogMessage{
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Service:   "orchestrator",
-			Level:     "ERROR",
-			Message:   "Failed to send summary task with meeting_id: 867297",
-			Details: map[string]interface{}{
-				"error": err.Error(),
-			},
-		}
-		if err = app.publishLog(logMessage); err != nil {
-			log.Printf("Error publishing log to RabbitMQ: %v", err)
-		}
+	//if err = app.sendSummaryTask("867297"); err != nil {
+	//	logMessage := LogMessage{
+	//		Timestamp: time.Now().UTC().Format(time.RFC3339),
+	//		Service:   "orchestrator",
+	//		Level:     "ERROR",
+	//		Message:   "Failed to send summary task with meeting_id: 867297",
+	//		Details: map[string]interface{}{
+	//			"error": err.Error(),
+	//		},
+	//	}
+	//	if err = app.publishLog(logMessage); err != nil {
+	//		log.Printf("Error publishing log to RabbitMQ: %v", err)
+	//	}
+	//
+	//} else {
+	//	logMessage := LogMessage{
+	//		Timestamp: time.Now().UTC().Format(time.RFC3339),
+	//		Service:   "orchestrator",
+	//		Level:     "INFO",
+	//		Message:   "Summary task sent successfully",
+	//		Details: map[string]interface{}{
+	//			"meeting_id": "867297",
+	//			"queue":      "summary_queue",
+	//		},
+	//	}
+	//	if err = app.publishLog(logMessage); err != nil {
+	//		log.Printf("Error publishing log to RabbitMQ: %v", err)
+	//	}
+	// }
 
-	} else {
-		logMessage := LogMessage{
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Service:   "orchestrator",
-			Level:     "INFO",
-			Message:   "Summary task sent successfully",
-			Details: map[string]interface{}{
-				"meeting_id": "867297",
-				"queue":      "summary_queue",
-			},
-		}
-		if err = app.publishLog(logMessage); err != nil {
-			log.Printf("Error publishing log to RabbitMQ: %v", err)
-		}
+	if err = app.sendTranscriptionTask("abc867297"); err != nil {
+		log.Printf("Error sending transcription task: %v", err)
 	}
 
 	log.Printf("Orchestrator is ready and listening on port %s.", webPort)
