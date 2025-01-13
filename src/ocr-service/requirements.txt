@@ -1,0 +1,10 @@
+tesseract-ocr
+tesseract-ocr-pol
+libtesseract-dev
+pytesseract 
+pillow
+logging
+pika
+time
+json
+pymongo

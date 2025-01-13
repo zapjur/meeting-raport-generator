@@ -2,7 +2,9 @@ version: "3.9"
 
 services:
   mongodb:
-    image: mongo:latest
+    build:
+      context: ./src/mongodb
+      dockerfile: Dockerfile
     container_name: mongodb
     ports:
       - "27017:27017"
@@ -23,6 +25,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_HEARTBEAT: 900
 
   logger-service:
     build:
@@ -44,6 +47,8 @@ services:
       - rabbitmq
     ports:
       - "8080:8080"
+    volumes:
+      - shared-data:/shared
 
   summary-service:
     build:
@@ -57,12 +62,29 @@ services:
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
 
-  client-service:
+#   client-service:
+#     build:
+#       context: ./client
+#       dockerfile: Dockerfile
+#     container_name: client
+#     ports:
+#       - "3000:80"
+#     depends_on:
+#       - orchestrator-service
+
+  transcription-service:
     build:
-      context: ./client
+      context: ./src/transcription-service
       dockerfile: Dockerfile
-    container_name: client
-    ports:
-      - "3000:80"
+    container_name: transcription-service
     depends_on:
+      - mongodb
+      - rabbitmq
       - orchestrator-service
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    volumes:
+      - shared-data:/shared
+
+volumes:
+  shared-data:
