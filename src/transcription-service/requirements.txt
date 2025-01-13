@@ -1,7 +1,10 @@
-pyannote.audio
-pyannote.core
+importlib_metadata==4.13.0
+pyannote.database==4.1.1
+pyannote.audio==2.1.1
 scipy
 torch
+torchvision
+torchaudio
 numpy
 python-dotenv
 openai-whisper
