@@ -12,16 +12,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
-if torch.cuda.is_available():
-    device = torch.device("cuda")  # GPU z CUDA (NVIDIA)
-elif torch.backends.mps.is_available() and torch.backends.mps.is_built():
-    device = torch.device("mps")  # Multi-Process Service (MPS)
-else:
-    device = torch.device("cpu")
-
-logging.info(f"Using device: {device}")
-
-model = whisper.load_model("medium").to(device)
+model = whisper.load_model("medium")
 
 def transcript(audio_file, speaker_id, latest_timestamp_end, meeting_id):
     """
