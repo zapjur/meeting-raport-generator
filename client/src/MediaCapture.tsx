@@ -46,6 +46,9 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop(); // Stop audio recording
     }
+
+    // Clear previous audio chunks
+    audioChunksRef.current = [];
   };
 
   // Capture screenshots from the screen
@@ -117,46 +120,56 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
 
   // Start recording audio in 10-second chunks
   const startAudioRecording = (stream: MediaStream) => {
+    // Create the MediaRecorder
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+
+    // Audio chunk storage
+    audioChunksRef.current = [];
+
+    // Data available event handler
+    mediaRecorder.ondataavailable = (e) => {
+      audioChunksRef.current.push(e.data);
+    };
+
+    // Stop event handler to process the audio and send it to the server
+    const processAudioAndRestartRecording = () => {
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      audioChunksRef.current = []; // Clear the chunks
+      const formData = new FormData();
+      formData.append("audio", audioBlob, `audio-${Date.now()}.webm`);
+
+      // Send the audio to the server
+      fetch("http://localhost:8080/capture-audio", {
+        method: "POST",
+        body: formData,
+      })
+        .then(response => response.json())
+        .then(data => console.log("Audio upload response:", data))
+        .catch(err => console.error("Error uploading audio:", err));
+    };
+
+    // Start the recording
     const startNewRecording = () => {
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      
-      mediaRecorder.ondataavailable = (e) => {
-        audioChunksRef.current.push(e.data);
-      };
-
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        audioChunksRef.current = []; // Clear the chunks
-        const formData = new FormData();
-        formData.append("audio", audioBlob, `audio-${Date.now()}.webm`);
-
-        // Send the audio to the server
-        fetch("http://localhost:8080/capture-audio", {
-          method: "POST",
-          body: formData,
-        })
-          .then(response => response.json())
-          .then(data => console.log("Audio upload response:", data))
-          .catch(err => console.error("Error uploading audio:", err));
-
-        // Start a new recording after stopping
-        startNewRecording();
-      };
-
       mediaRecorder.start();
       console.log('Audio recording started.');
 
-      // Stop recording after 10 seconds
+      // Set a timeout to stop recording after 10 seconds
       setTimeout(() => {
         if (mediaRecorder.state === 'recording') {
           console.log("Stopping recording after 10 seconds.");
-          mediaRecorder.stop();
+          mediaRecorder.stop(); // This will trigger the onstop event
         }
-      }, 10000); // Stop recording every 10 seconds
+      }, 10000); // Stop recording after 10 seconds
     };
 
-    // Start the first recording
+    // Event handler for when the recording stops
+    mediaRecorder.onstop = () => {
+      processAudioAndRestartRecording(); // Process the audio and send it
+      startNewRecording(); // Start a new recording after stopping
+    };
+
+    // Start the initial recording
     startNewRecording();
   };
 
