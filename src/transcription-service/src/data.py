@@ -39,11 +39,13 @@ class Embedding:
     id: Optional[str] = None
 
     def to_dict(self):
-        return {
-            "_id": self.id if self.id else None,
+        result = {
             "meeting_id": self.meeting_id,
             "embeddings": self.embeddings
         }
+        if self.id is not None:
+            result["_id"] = self.id
+        return result
 
     @staticmethod
     def from_dict(data: dict):
