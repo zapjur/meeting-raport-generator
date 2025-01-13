@@ -9,49 +9,49 @@ declare class ImageCapture {
 const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const previousFrameRef = useRef<ImageData | null>(null);
-  const mediaStreamRef = useRef<MediaStream | null>(null); // Keep reference to the MediaStream
+  const mediaStreamRef = useRef<MediaStream | null>(null); 
   const screenshotIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null); // Keep reference to MediaRecorder
-  const audioChunksRef = useRef<Blob[]>([]); // Store audio chunks
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null); 
+  const audioChunksRef = useRef<Blob[]>([]);
 
-  // Start the screenshot capture process
+  // Function to start capturing media (video + audio)
   const startRecording = async () => {
     console.log("Starting screen capture...");
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
       console.log("Screen and audio stream obtained", stream);
 
-      // Keep reference to the media stream
+      // Store the media stream reference
       mediaStreamRef.current = stream;
 
-      // Start capturing screenshots every second
+      // Start capturing screenshots at regular intervals
       screenshotIntervalRef.current = setInterval(() => captureScreenshot(stream), 1000);
 
-      // Start recording audio in 10-second chunks
+      // Start audio recording in chunks
       startAudioRecording(stream);
     } catch (err) {
       console.error("Error starting screen capture:", err);
     }
   };
 
-  // Stop the screenshot capture and audio recording
+  // Function to stop media capture and audio recording
   const stopRecording = () => {
     console.log("Stopping capture...");
     if (screenshotIntervalRef.current) clearInterval(screenshotIntervalRef.current);
 
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach(track => track.stop()); // Stop all tracks
-    }
+    // Stop all media stream tracks
+    mediaStreamRef.current?.getTracks().forEach(track => track.stop());
 
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop(); // Stop audio recording
-    }
+    // Stop audio recording
+    mediaRecorderRef.current?.stop();
 
-    // Clear previous audio chunks
+    // Clear audio chunks
     audioChunksRef.current = [];
+
+
   };
 
-  // Capture screenshots from the screen
+  // Function to capture screenshots and upload them to the server
   const captureScreenshot = async (stream: MediaStream) => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
@@ -71,6 +71,7 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
           if (!previousFrameRef.current || compareFrames(previousFrameRef.current, currentFrameData)) {
             previousFrameRef.current = currentFrameData;
 
+            // Upload the screenshot
             canvas.toBlob(async (blob) => {
               if (blob) {
                 const formData = new FormData();
@@ -96,7 +97,7 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
     }
   };
 
-  // Compare two frames to check for changes
+  // Compare two frames for significant changes
   const compareFrames = (previousFrame: ImageData, currentFrame: ImageData) => {
     const pixelCount = previousFrame.width * previousFrame.height;
     let diffCount = 0;
@@ -120,22 +121,22 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
 
   // Start recording audio in 10-second chunks
   const startAudioRecording = (stream: MediaStream) => {
-    // Create the MediaRecorder
     const mediaRecorder = new MediaRecorder(stream);
     mediaRecorderRef.current = mediaRecorder;
 
-    // Audio chunk storage
+    // Store audio chunks
     audioChunksRef.current = [];
 
-    // Data available event handler
+    // Store audio data when available
     mediaRecorder.ondataavailable = (e) => {
       audioChunksRef.current.push(e.data);
     };
 
-    // Stop event handler to process the audio and send it to the server
+    // Process and send audio data when recording stops
     const processAudioAndRestartRecording = () => {
       const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-      audioChunksRef.current = []; // Clear the chunks
+      audioChunksRef.current = []; 
+
       const formData = new FormData();
       formData.append("audio", audioBlob, `audio-${Date.now()}.webm`);
 
@@ -149,32 +150,31 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
         .catch(err => console.error("Error uploading audio:", err));
     };
 
-    // Start the recording
+    // Start recording and automatically stop after 10 seconds
     const startNewRecording = () => {
       mediaRecorder.start();
       console.log('Audio recording started.');
 
-      // Set a timeout to stop recording after 10 seconds
       setTimeout(() => {
         if (mediaRecorder.state === 'recording') {
           console.log("Stopping recording after 10 seconds.");
-          mediaRecorder.stop(); // This will trigger the onstop event
+          mediaRecorder.stop(); 
         }
-      }, 10000); // Stop recording after 10 seconds
+      }, 10000); 
     };
 
-    // Event handler for when the recording stops
+    // Event handler when the recording stops
     mediaRecorder.onstop = () => {
-      processAudioAndRestartRecording(); // Process the audio and send it
-      startNewRecording(); // Start a new recording after stopping
+      processAudioAndRestartRecording();
+      startNewRecording();
     };
 
     // Start the initial recording
     startNewRecording();
   };
 
+  // Effect to handle recording based on `isRecording` prop
   useEffect(() => {
-    // Only start recording if `isRecording` is true
     if (isRecording && !mediaStreamRef.current) {
       startRecording();
     } else if (!isRecording && mediaStreamRef.current) {
@@ -182,7 +182,6 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
     }
 
     return () => {
-      // Cleanup when component unmounts
       stopRecording();
     };
   }, [isRecording]);
