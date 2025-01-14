@@ -21,7 +21,7 @@ def ocr_image(file_path, meeting_id):
         custom_config = r'--psm 6 --oem 3 -c preserve_interword_spaces=1'
         img = Image.open(file_path)
 
-        text = pytesseract.image_to_string(img, config=custom_config)
+        text = pytesseract.image_to_string(img, config=custom_config, lang='pol')
 
         logging.info(f"Saving OCR text result in MongoDB for meeting with meeting_id={meeting_id}")
         mongo_conn = mongo_client.connect_to_mongo_collection('ocr_results')
