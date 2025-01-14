@@ -48,7 +48,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - shared-data:/shared
+      - shared-data-transcription:/shared-transcription
+      - shared-data-ocr:/shared-ocr
 
   summary-service:
     build:
@@ -84,7 +85,20 @@ services:
     environment:
       - HF_TOKEN=${HF_TOKEN}
     volumes:
-      - shared-data:/shared
+      - shared-data-transcription:/shared-transcription
+
+  ocr-service:
+    build:
+      context: ./src/ocr-service
+      dockerfile: Dockerfile
+    container_name: ocr-service
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - orchestrator-service
+    volumes:
+      - shared-data-ocr:/shared-ocr
 
 volumes:
-  shared-data:
+  shared-data-transcription:
+  shared-data-ocr:

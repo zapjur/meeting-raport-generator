@@ -59,7 +59,7 @@ func (app *Config) publishLog(logMessage LogMessage) error {
 }
 
 func (app *Config) sendTranscriptionTask(meetingId string) error {
-	filePath := "/shared/test_audio.wav"
+	filePath := "/shared-transcription/test_audio.wav"
 	taskMessage := fmt.Sprintf(`{"meeting_id": "%s", "file_path": "%s"}`, meetingId, filePath)
 	err := app.RabbitChannel.Publish(
 		"",                    // exchange
@@ -75,5 +75,25 @@ func (app *Config) sendTranscriptionTask(meetingId string) error {
 		return fmt.Errorf("failed to publish task: %w", err)
 	}
 	log.Printf("Task sent to transcription_queue: %s", taskMessage)
+	return nil
+}
+
+func (app *Config) sendOcrTask(meetingId string) error {
+	filePath := "/shared-ocr/test_ocr.png"
+	taskMessage := fmt.Sprintf(`{"meeting_id": "%s", "file_path": "%s"}`, meetingId, filePath)
+	err := app.RabbitChannel.Publish(
+		"",          // exchange
+		"ocr_queue", // routing key
+		false,       // mandatory
+		false,       // immediate
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        []byte(taskMessage),
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to publish task: %w", err)
+	}
+	log.Printf("Task sent to ocr_queue: %s", taskMessage)
 	return nil
 }

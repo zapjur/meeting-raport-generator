@@ -149,9 +149,13 @@ func main() {
 	//		log.Printf("Error publishing log to RabbitMQ: %v", err)
 	//	}
 	// }
+	//
+	//if err = app.sendTranscriptionTask("abc867297"); err != nil {
+	//	log.Printf("Error sending transcription task: %v", err)
+	//}
 
-	if err = app.sendTranscriptionTask("abc867297"); err != nil {
-		log.Printf("Error sending transcription task: %v", err)
+	if err = app.sendOcrTask("abc867297"); err != nil {
+		log.Printf("Error sending OCR task: %v", err)
 	}
 
 	log.Printf("Orchestrator is ready and listening on port %s.", webPort)
