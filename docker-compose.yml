@@ -96,6 +96,8 @@ services:
       - mongodb
       - rabbitmq
       - orchestrator-service
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
       - shared-data-ocr:/shared-ocr
 
