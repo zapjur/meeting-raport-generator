@@ -3,6 +3,7 @@ module report-service
 go 1.23.1
 
 require (
+	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/streadway/amqp v1.1.0
 	go.mongodb.org/mongo-driver v1.17.2
 )

@@ -110,7 +110,9 @@ services:
       - orchestrator-service
     volumes:
       - shared-data-ocr:/shared-ocr
+      - shared-data-report:/shared-report
 
 volumes:
   shared-data-transcription:
   shared-data-ocr:
+  shared-data-report:

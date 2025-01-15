@@ -87,5 +87,73 @@ func (app *Config) processReportTasks() {
 			log.Printf("Error publishing log to RabbitMQ: %v", err)
 		}
 
+		transcriptions, summary, ocrResults, err := app.fetchMeetingData(meetingId)
+		if err != nil {
+			logMessage = LogMessage{
+				Timestamp: time.Now().UTC().Format(time.RFC3339),
+				Service:   "report",
+				Level:     "ERROR",
+				Message:   fmt.Sprintf("Error getting data from mongo with meeting_id: %s", meetingId),
+				Details: map[string]interface{}{
+					"meeting_id": meetingId,
+					"queue":      "report_queue",
+				},
+			}
+			if err = app.publishLog(logMessage); err != nil {
+				log.Printf("Error publishing log to RabbitMQ: %v", err)
+			}
+			continue
+		}
+
+		screenshots, err := fetchScreenshots(meetingId)
+		if err != nil {
+			logMessage = LogMessage{
+				Timestamp: time.Now().UTC().Format(time.RFC3339),
+				Service:   "report",
+				Level:     "ERROR",
+				Message:   fmt.Sprintf("Error getting screenshots with meeting_id: %s", meetingId),
+				Details: map[string]interface{}{
+					"meeting_id": meetingId,
+					"queue":      "report_queue",
+				},
+			}
+			if err = app.publishLog(logMessage); err != nil {
+				log.Printf("Error publishing log to RabbitMQ: %v", err)
+			}
+			continue
+		}
+
+		err = generatePDF(meetingId, transcriptions, summary, ocrResults, screenshots)
+		if err != nil {
+			logMessage = LogMessage{
+				Timestamp: time.Now().UTC().Format(time.RFC3339),
+				Service:   "report",
+				Level:     "ERROR",
+				Message:   fmt.Sprintf("Error generating PDF with meeting_id: %s", meetingId),
+				Details: map[string]interface{}{
+					"meeting_id": meetingId,
+					"queue":      "report_queue",
+				},
+			}
+			if err = app.publishLog(logMessage); err != nil {
+				log.Printf("Error publishing log to RabbitMQ: %v", err)
+			}
+			continue
+		}
+
+		logMessage = LogMessage{
+			Timestamp: time.Now().UTC().Format(time.RFC3339),
+			Service:   "report",
+			Level:     "INFO",
+			Message:   fmt.Sprintf("Successfully generated PDF for meeting_id: %s", meetingId),
+			Details: map[string]interface{}{
+				"meeting_id": meetingId,
+				"queue":      "report_queue",
+			},
+		}
+		if err = app.publishLog(logMessage); err != nil {
+			log.Printf("Error publishing log to RabbitMQ: %v", err)
+		}
+
 	}
 }
