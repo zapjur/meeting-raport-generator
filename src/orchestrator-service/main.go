@@ -93,7 +93,7 @@ func main() {
 	defer rabbitChannel.Close()
 
 	// Declare necessary queues
-	queues := []string{"logs_queue", "summary_queue", "transcription_queue", "ocr_queue"}
+	queues := []string{"logs_queue", "summary_queue", "transcription_queue", "ocr_queue", "report_queue"}
 	for _, queue := range queues {
 		_, err = rabbitChannel.QueueDeclare(
 			queue, // queue name
@@ -153,10 +153,10 @@ func main() {
 	//if err = app.sendTranscriptionTask("abc867297"); err != nil {
 	//	log.Printf("Error sending transcription task: %v", err)
 	//}
-
-	if err = app.sendOcrTask("abc867297"); err != nil {
-		log.Printf("Error sending OCR task: %v", err)
-	}
+	//
+	//if err = app.sendOcrTask("abc867297"); err != nil {
+	//	log.Printf("Error sending OCR task: %v", err)
+	//}
 
 	log.Printf("Orchestrator is ready and listening on port %s.", webPort)
 	if err = srv.ListenAndServe(); err != nil {

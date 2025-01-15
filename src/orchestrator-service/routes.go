@@ -25,6 +25,8 @@ func (app *Config) routes() *chi.Mux {
 		w.Write([]byte("Test endpoint working"))
 	})
 	r.Get("/generate-meeting-id", app.GenerateMeetingId)
+	r.Post("/capture-screenshots", app.CaptureScreenshots)
+	r.Post("/capture-audio", app.CaptureAudio)
 
 	return r
 }

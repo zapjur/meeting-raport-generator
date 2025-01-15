@@ -32,3 +32,11 @@ func (app *Config) GenerateMeetingId(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+func (app *Config) CaptureScreenshots(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (app *Config) CaptureAudio(w http.ResponseWriter, r *http.Request) {
+
+}
