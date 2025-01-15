@@ -99,6 +99,18 @@ services:
     volumes:
       - shared-data-ocr:/shared-ocr
 
+  report-service:
+    build:
+      context: ./src/report-service
+      dockerfile: Dockerfile
+    container_name: report-service
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - orchestrator-service
+    volumes:
+      - shared-data-ocr:/shared-ocr
+
 volumes:
   shared-data-transcription:
   shared-data-ocr:

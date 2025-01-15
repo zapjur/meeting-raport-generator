@@ -93,7 +93,7 @@ func main() {
 	defer rabbitChannel.Close()
 
 	// Declare necessary queues
-	queues := []string{"logs_queue", "summary_queue", "transcription_queue", "ocr_queue"}
+	queues := []string{"logs_queue", "summary_queue", "transcription_queue", "ocr_queue", "report_queue"}
 	for _, queue := range queues {
 		_, err = rabbitChannel.QueueDeclare(
 			queue, // queue name
