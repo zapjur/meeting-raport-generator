@@ -38,7 +38,7 @@ def process_message(ch, method, properties, body):
     except Exception as e:
         logging.error(f"Error in callback: {e}")
         if ch.is_open:
-            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
         else:
             logging.warning("Channel is closed. Cannot ack message.")
 
