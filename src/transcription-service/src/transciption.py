@@ -40,8 +40,8 @@ def transcript(audio_file, speaker_id, latest_timestamp_end, meeting_id):
     return Transcription(
         speaker_id=speaker_id,
         transcription=transcription_text,
-        timestamp_start=str(timedelta(seconds=int(timestamp_start))),
-        timestamp_end=str(timedelta(seconds=int(timestamp_end))),
+        timestamp_start=str(timedelta(seconds=float(timestamp_start))),
+        timestamp_end=str(timedelta(seconds=float(timestamp_end))),
         meeting_id=meeting_id
     )
 

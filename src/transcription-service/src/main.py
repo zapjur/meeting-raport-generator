@@ -194,9 +194,14 @@ def get_latest_ts_end(meeting_id):
     latest_transcription_list = list(latest_transcription)
     if len(latest_transcription_list) > 0:
         timestamp_end_str = latest_transcription_list[0]["timestamp_end"]
-        h, m, s = map(int, timestamp_end_str.split(":"))
-        return h * 3600 + m * 60 + s
-    return 0
+        try:
+            h, m, s = map(float, timestamp_end_str.split(":"))
+            return h * 3600 + m * 60 + s
+        except ValueError as e:
+            print(f"Invalid timestamp format: {timestamp_end_str}. Error: {e}")
+            return 0.0
+    return 0.0
+
 
 
 
