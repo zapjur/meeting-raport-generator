@@ -27,6 +27,12 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
       RABBITMQ_HEARTBEAT: 900
 
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+
   logger-service:
     build:
       context: ./src/logger-service

@@ -1,7 +1,10 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
+	"github.com/go-redis/redis/v8"
+	"github.com/streadway/amqp"
+	"go.mongodb.org/mongo-driver/mongo"
 	"math/rand"
 	"net/http"
 	"time"
@@ -11,8 +14,14 @@ type MeetingIdResponse struct {
 	MeetingId string `json:"meeting_id"`
 }
 
-func (app *Config) GenerateMeetingId(w http.ResponseWriter, r *http.Request) {
+type Config struct {
+	MongoClient   *mongo.Client
+	RabbitChannel *amqp.Channel
+	RedisManager  *redis.Client
+	TaskHandler   *TaskHandler
+}
 
+func (app *Config) GenerateMeetingId(w http.ResponseWriter, r *http.Request) {
 	src := rand.NewSource(time.Now().UnixNano())
 	rng := rand.New(src)
 

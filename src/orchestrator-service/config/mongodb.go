@@ -1,0 +1,44 @@
+package config
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+const (
+	retries    = 5
+	retryDelay = 5 * time.Second
+)
+
+func ConnectToMongoDB(uri string) (*mongo.Client, error) {
+	var client *mongo.Client
+	var err error
+
+	for i := 0; i < retries; i++ {
+		client, err = mongo.NewClient(options.Client().ApplyURI(uri))
+		if err != nil {
+			log.Printf("MongoDB client creation error: %v", err)
+			time.Sleep(retryDelay)
+			continue
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		err = client.Connect(ctx)
+		if err == nil {
+			log.Println("Successfully connected to MongoDB.")
+			return client, nil
+		}
+
+		log.Printf("MongoDB connection failed (%d/%d): %v", i+1, retries, err)
+		time.Sleep(retryDelay)
+	}
+
+	return nil, fmt.Errorf("failed to connect to MongoDB after %d retries: %w", retries, err)
+}
