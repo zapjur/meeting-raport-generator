@@ -42,30 +42,38 @@ func main() {
 	}
 	defer redisClient.Close()
 
+	redisManager := &redis.RedisManager{Client: redisClient}
+
+	rabbitConsumer := &rabbitmq.RabbitMQConsumer{Channel: rabbitChannel}
+	err = rabbitConsumer.Consume("orchestrator_ack_queue", handlers.HandleAckMessage(redisManager))
+	if err != nil {
+		log.Fatalf("Failed to start RabbitMQ consumer: %v", err)
+	}
+
 	taskHandler := &handlers.TaskHandler{
 		RabbitChannel: rabbitChannel,
-		RedisManager:  &redis.RedisManager{Client: redisClient},
+		RedisManager:  redisManager,
 	}
 
 	//err = taskHandler.SendSummaryTask("867297")
 	//if err != nil {
 	//	log.Printf("Error sending summary task: %v", err)
 	//}
-
+	//
 	//err = taskHandler.SendTranscriptionTask("867297")
 	//if err != nil {
 	//	log.Printf("Error sending transcription task: %v", err)
 	//}
-
+	//
 	//err = taskHandler.SendOcrTask("867297")
 	//if err != nil {
 	//	log.Printf("Error sending OCR task: %v", err)
 	//}
-
-	err = taskHandler.SendReportTask("867297")
-	if err != nil {
-		log.Printf("Error sending report task: %v", err)
-	}
+	//
+	//err = taskHandler.SendReportTask("867297")
+	//if err != nil {
+	//	log.Printf("Error sending report task: %v", err)
+	//}
 
 	r := routes.Routes(&handlers.Config{
 		MongoClient:   mongoClient,
