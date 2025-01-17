@@ -100,8 +100,9 @@ func (h *TaskHandler) SendOcrTask(meetingId string) error {
 		false,
 		false,
 		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        []byte(taskMessage),
+			ContentType:   "application/json",
+			Body:          []byte(taskMessage),
+			CorrelationId: taskID,
 		},
 	)
 	if err != nil {
