@@ -44,7 +44,7 @@ func (app *Config) processReportTasks() {
 	msgs, err := app.RabbitChannel.Consume(
 		"report_queue", // queue name
 		"",             // consumer tag
-		true,           // auto-acknowledge
+		false,          // auto-acknowledge
 		false,          // exclusive
 		false,          // no-local
 		false,          // no-wait

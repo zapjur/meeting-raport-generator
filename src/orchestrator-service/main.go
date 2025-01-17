@@ -47,15 +47,15 @@ func main() {
 		RedisManager:  &redis.RedisManager{Client: redisClient},
 	}
 
-	//err = taskHandler.SendSummaryTask("867297")
-	//if err != nil {
-	//	log.Printf("Error sending summary task: %v", err)
-	//}
-
-	err = taskHandler.SendTranscriptionTask("867297")
+	err = taskHandler.SendSummaryTask("867297")
 	if err != nil {
-		log.Printf("Error sending transcription task: %v", err)
+		log.Printf("Error sending summary task: %v", err)
 	}
+
+	//err = taskHandler.SendTranscriptionTask("867297")
+	//if err != nil {
+	//	log.Printf("Error sending transcription task: %v", err)
+	//}
 
 	//err = taskHandler.SendOcrTask("867297")
 	//if err != nil {

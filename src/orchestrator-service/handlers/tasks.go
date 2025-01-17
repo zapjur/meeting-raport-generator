@@ -24,6 +24,36 @@ type LogMessage struct {
 	Details   map[string]interface{} `json:"details"`
 }
 
+func (h *TaskHandler) sendReportTask(meetingId string) error {
+	taskID := fmt.Sprintf("%s-report-%d", meetingId, time.Now().UnixNano())
+	taskMessage := fmt.Sprintf(`{"meeting_id": "%s", "task_id": "%s"}`, meetingId, taskID)
+
+	ctx := context.Background()
+	err := h.RedisManager.AddTask(ctx, meetingId, taskID)
+	if err != nil {
+		return fmt.Errorf("failed to add task to Redis: %w", err)
+	}
+
+	err = h.RabbitChannel.Publish(
+		"",
+		"report_queue",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType:   "application/json",
+			Body:          []byte(taskMessage),
+			CorrelationId: taskID,
+		},
+	)
+	if err != nil {
+		h.RedisManager.UpdateTaskStatus(ctx, meetingId, taskID, "failed")
+		return fmt.Errorf("failed to publish task to RabbitMQ: %w", err)
+	}
+
+	log.Printf("Task sent to report_queue: %s", taskMessage)
+	return nil
+}
+
 func (h *TaskHandler) SendSummaryTask(meetingId string) error {
 	taskID := fmt.Sprintf("%s-summary-%d", meetingId, time.Now().UnixNano())
 	taskMessage := fmt.Sprintf(`{"meeting_id": "%s", "task_id": "%s"}`, meetingId, taskID)

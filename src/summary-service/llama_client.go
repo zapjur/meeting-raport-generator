@@ -39,13 +39,7 @@ type ResponseBody struct {
 	} `json:"choices"`
 }
 
-type Summary struct {
-	MeetingID   string    `bson:"meeting_id"`
-	SummaryText string    `bson:"summary_text"`
-	CreatedAt   time.Time `bson:"created_at"`
-}
-
-func (app *Config) generateSummary(meetingId string) {
+func (app *Config) generateSummary(meetingId string) error {
 	apiKey := os.Getenv("GROQ_API_KEY")
 	if apiKey == "" {
 		log.Fatal("API key is not set.")
@@ -53,7 +47,7 @@ func (app *Config) generateSummary(meetingId string) {
 
 	transcription, err := app.fetchTranscriptions(meetingId)
 	if err != nil {
-		log.Fatalf("Error fetching transcriptions: %v", err)
+		return err
 	}
 
 	prompt := `
@@ -78,12 +72,12 @@ Return only the summary without any additional text or metadata.
 
 	requestBodyJSON, err := json.Marshal(requestBody)
 	if err != nil {
-		log.Fatalf("Error serializing JSON: %v", err)
+		return err
 	}
 
 	req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(requestBodyJSON))
 	if err != nil {
-		log.Fatalf("Error creating HTTP request: %v", err)
+		return err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -92,19 +86,19 @@ Return only the summary without any additional text or metadata.
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatalf("Error sending HTTP request: %v", err)
+		return err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalf("Error reading response body: %v", err)
+		return err
 	}
 
 	var response ResponseBody
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		log.Fatalf("Error deserializing JSON: %v", err)
+		return err
 	}
 
 	if len(response.Choices) > 0 {
@@ -112,7 +106,7 @@ Return only the summary without any additional text or metadata.
 
 		err = app.saveSummaryToDB(meetingId, summaryText)
 		if err != nil {
-			log.Fatalf("Error saving summary to MongoDB: %v", err)
+			return err
 		}
 
 		fmt.Println("Summary saved successfully.")
@@ -147,6 +141,7 @@ Return only the summary without any additional text or metadata.
 			log.Printf("Error publishing log to RabbitMQ: %v", err)
 		}
 	}
+	return nil
 }
 
 func (app *Config) saveSummaryToDB(meetingID, summaryText string) error {
