@@ -51,16 +51,16 @@ func main() {
 	//if err != nil {
 	//	log.Printf("Error sending summary task: %v", err)
 	//}
-	//
-	//err = taskHandler.SendTranscriptionTask("867297")
-	//if err != nil {
-	//	log.Printf("Error sending transcription task: %v", err)
-	//}
 
-	err = taskHandler.SendOcrTask("867297")
+	err = taskHandler.SendTranscriptionTask("867297")
 	if err != nil {
-		log.Printf("Error sending OCR task: %v", err)
+		log.Printf("Error sending transcription task: %v", err)
 	}
+
+	//err = taskHandler.SendOcrTask("867297")
+	//if err != nil {
+	//	log.Printf("Error sending OCR task: %v", err)
+	//}
 
 	r := routes.Routes(&handlers.Config{
 		MongoClient:   mongoClient,

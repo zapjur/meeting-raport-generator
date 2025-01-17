@@ -52,8 +52,8 @@ def process_message(ch, method, properties, body, ack_channel):
             logging.warning("Channel is closed. Cannot nack message.")
 
         ack_message = {
-            "meeting_id": meeting_id,
-            "task_id": task_id,
+            "meeting_id": message.get("meeting_id"),
+            "task_id": properties.correlation_id,
             "task_type": "ocr",
             "status": "failed"
         }

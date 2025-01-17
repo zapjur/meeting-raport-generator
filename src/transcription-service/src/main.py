@@ -241,13 +241,14 @@ def main(meeting_id, file_path):
         raise
 
 
-def process_message(ch, method, properties, body):
+def process_message(ch, method, properties, body, ack_channel):
     logging.info("Callback triggered. Received message...")
     try:
         message = json.loads(body)
         logging.info(f"Message received: {message}")
         file_path = message.get("file_path")
         meeting_id = message.get("meeting_id")
+        task_id = properties.correlation_id
 
         if not file_path or not meeting_id:
             logging.warning("Invalid message format. Skipping...")
@@ -259,6 +260,15 @@ def process_message(ch, method, properties, body):
 
         logging.info(f"Received task for file: {file_path}, meeting ID: {meeting_id}")
         main(meeting_id, file_path)
+
+        ack_message = {
+            "meeting_id": meeting_id,
+            "task_id": task_id,
+            "task_type": "transcription",
+            "status": "completed"
+        }
+        send_ack_message(ack_message, ack_channel)
+
         if ch.is_open:
             ch.basic_ack(delivery_tag=method.delivery_tag)
         else:
@@ -270,6 +280,14 @@ def process_message(ch, method, properties, body):
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
         else:
             logging.warning("Channel is closed. Cannot ack message.")
+
+        ack_message = {
+            "meeting_id": message.get("meeting_id"),
+            "task_id": properties.correlation_id,
+            "task_type": "transcription",
+            "status": "failed"
+        }
+        send_ack_message(ack_message, ack_channel)
 
 def main_consumer():
     credentials = pika.PlainCredentials('guest', 'guest')
@@ -287,13 +305,21 @@ def main_consumer():
                 heartbeat=900
             ))
             channel = connection.channel()
+            ack_channel = connection.channel()
             logging.info("Connected to RabbitMQ")
 
             channel.queue_declare(queue='transcription_queue', durable=True)
             logging.info("Queue declared.")
 
             channel.basic_qos(prefetch_count=1)
-            channel.basic_consume(queue='transcription_queue', on_message_callback=process_message, auto_ack=False, consumer_tag="transcription_consumer")
+            channel.basic_consume(
+                queue='transcription_queue',
+                on_message_callback=lambda ch, method, properties, body: process_message(
+                    ch, method, properties, body, ack_channel
+                ),
+                auto_ack=False,
+                consumer_tag="transcription_consumer"
+            )
 
             logging.info("Waiting for messages. To exit press CTRL+C")
             channel.start_consuming()
@@ -304,6 +330,23 @@ def main_consumer():
             logging.error(f"Connection error: {e}. Retrying in 5 seconds...")
             time.sleep(5)
 
+
+def send_ack_message(message, ack_channel):
+    try:
+        ack_channel.queue_declare(queue='orchestrator_ack_queue', durable=True)
+
+        ack_channel.basic_publish(
+            exchange='',
+            routing_key='orchestrator_ack_queue',
+            body=json.dumps(message),
+            properties=pika.BasicProperties(
+                content_type='application/json'
+            )
+        )
+        logging.info(f"Acknowledgment sent: {message}")
+
+    except Exception as e:
+        logging.error(f"Failed to send acknowledgment message: {e}")
 
 
 if __name__ == "__main__":
