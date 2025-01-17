@@ -44,15 +44,15 @@ func main() {
 
 	redisManager := &redis.RedisManager{Client: redisClient}
 
-	rabbitConsumer := &rabbitmq.RabbitMQConsumer{Channel: rabbitChannel}
-	err = rabbitConsumer.Consume("orchestrator_ack_queue", handlers.HandleAckMessage(redisManager))
-	if err != nil {
-		log.Fatalf("Failed to start RabbitMQ consumer: %v", err)
-	}
-
 	taskHandler := &handlers.TaskHandler{
 		RabbitChannel: rabbitChannel,
 		RedisManager:  redisManager,
+	}
+
+	rabbitConsumer := &rabbitmq.RabbitMQConsumer{Channel: rabbitChannel}
+	err = rabbitConsumer.Consume("orchestrator_ack_queue", handlers.HandleAckMessage(redisManager, taskHandler))
+	if err != nil {
+		log.Fatalf("Failed to start RabbitMQ consumer: %v", err)
 	}
 
 	//err = taskHandler.SendSummaryTask("867297")
@@ -78,7 +78,7 @@ func main() {
 	r := routes.Routes(&handlers.Config{
 		MongoClient:   mongoClient,
 		RabbitChannel: rabbitChannel,
-		RedisManager:  redisClient,
+		RedisManager:  &redis.RedisManager{Client: redisClient},
 		TaskHandler:   taskHandler,
 	})
 
