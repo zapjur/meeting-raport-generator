@@ -1,4 +1,3 @@
-odsyłanie na kolejke do orchestratora wiadomości o wykonaniu zadania
 przyjęcie wiadomości o wykonaniu zadania
 aktualizacja stanu w redisie
 logika końca spotkania
