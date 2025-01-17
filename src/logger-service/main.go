@@ -97,6 +97,18 @@ func main() {
 	}
 	defer channel.Close()
 
+	_, err = channel.QueueDeclare(
+		"logs_queue", // queue name
+		true,         // durable
+		false,        // delete when unused
+		false,        // exclusive
+		false,        // no-wait
+		nil,          // arguments
+	)
+	if err != nil {
+		log.Printf("Failed to declare queue: %v.", err)
+	}
+
 	msgs, err := channel.Consume(
 		"logs_queue", // Queue name
 		"",           // Consumer name

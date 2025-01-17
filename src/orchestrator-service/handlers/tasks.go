@@ -24,7 +24,7 @@ type LogMessage struct {
 	Details   map[string]interface{} `json:"details"`
 }
 
-func (h *TaskHandler) sendReportTask(meetingId string) error {
+func (h *TaskHandler) SendReportTask(meetingId string) error {
 	taskID := fmt.Sprintf("%s-report-%d", meetingId, time.Now().UnixNano())
 	taskMessage := fmt.Sprintf(`{"meeting_id": "%s", "task_id": "%s"}`, meetingId, taskID)
 

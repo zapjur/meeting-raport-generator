@@ -63,6 +63,20 @@ func (app *Config) sendAckMessage(meetingId, taskId, status string) error {
 
 func (app *Config) processSummaryTasks() {
 	for {
+		_, err := app.RabbitChannel.QueueDeclare(
+			"summary_queue", // queue name
+			true,            // durable
+			false,           // delete when unused
+			false,           // exclusive
+			false,           // no-wait
+			nil,             // arguments
+		)
+		if err != nil {
+			log.Printf("Failed to declare queue: %v. Retrying in 5 seconds...", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
 		msgs, err := app.RabbitChannel.Consume(
 			"summary_queue", // queue name
 			"",              // consumer tag
