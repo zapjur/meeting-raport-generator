@@ -79,19 +79,19 @@ services:
 #     depends_on:
 #       - orchestrator-service
 
-  transcription-service:
-    build:
-      context: ./src/transcription-service
-      dockerfile: Dockerfile
-    container_name: transcription-service
-    depends_on:
-      - mongodb
-      - rabbitmq
-      - orchestrator-service
-    environment:
-      - HF_TOKEN=${HF_TOKEN}
-    volumes:
-      - shared-data-transcription:/shared-transcription
+  # transcription-service:
+  #   build:
+  #     context: ./src/transcription-service
+  #     dockerfile: Dockerfile
+  #   container_name: transcription-service
+  #   depends_on:
+  #     - mongodb
+  #     - rabbitmq
+  #     - orchestrator-service
+  #   environment:
+  #     - HF_TOKEN=${HF_TOKEN}
+  #   volumes:
+  #     - shared-data-transcription:/shared-transcription
 
   ocr-service:
     build:
@@ -118,6 +118,18 @@ services:
       - orchestrator-service
     volumes:
       - shared-data-ocr:/shared-ocr
+      - shared-data-report:/shared-report
+  email-service:
+    build:
+      context: ./src/email-service
+      dockerfile: Dockerfile
+    container_name: email-service
+    environment:
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+    depends_on:
+      - rabbitmq
+      - orchestrator-service
+    volumes:
       - shared-data-report:/shared-report
 
 volumes:
