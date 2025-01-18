@@ -1,44 +1,44 @@
 DOCKER_COMPOSE_FILE=docker-compose.yml
-DOCKER_COMPOSE_CMD=docker-compose  # Default to macOS/older Docker versions
+DOCKER_COMPOSE_COMMAND=docker-compose
 
 # Detect Linux environment
 ifeq ($(shell uname -s), Linux)
-    DOCKER_COMPOSE_CMD=docker compose
+    DOCKER_COMPOSE_COMMAND=docker compose
 endif
 
 ## up: starts all containers in the background without forcing build
 up:
 	@echo "Starting Docker containers..."
-	$(DOCKER_COMPOSE_CMD) up -d
+	$(DOCKER_COMPOSE_COMMAND) up -d
 	@echo "Docker containers started!"
 
 ## up_build: stops docker-compose (if running), builds all images and starts docker compose
 up_build:
 	@echo "Stopping Docker containers (if running)..."
-	$(DOCKER_COMPOSE_CMD) down
+	$(DOCKER_COMPOSE_COMMAND) down
 	@echo "Building and starting Docker containers..."
-	$(DOCKER_COMPOSE_CMD) up --build -d
+	$(DOCKER_COMPOSE_COMMAND) up --build -d
 	@echo "Docker containers built and started!"
 
 up_build_clean: clean up_build
 
 up_gpu:
 	@echo "Stopping Docker containers (if running)..."
-	$(DOCKER_COMPOSE_CMD) down
+	$(DOCKER_COMPOSE_COMMAND) down
 	@echo "Building and starting Docker containers with GPU support..."
-	$(DOCKER_COMPOSE_CMD) -f $(DOCKER_COMPOSE_FILE) up --build -d --gpus all
+	$(DOCKER_COMPOSE_COMMAND) -f $(DOCKER_COMPOSE_FILE) up --build -d --gpus all
 	@echo "Docker containers built and started with GPU support!"
 
 ## down: stops all containers
 down:
 	@echo "Stopping Docker containers..."
-	$(DOCKER_COMPOSE_CMD) down
+	$(DOCKER_COMPOSE_COMMAND) down
 	@echo "Done!"
 
 ## logs: shows logs from all services
 logs:
 	@echo "Fetching logs from all services..."
-	$(DOCKER_COMPOSE_CMD) logs -f
+	$(DOCKER_COMPOSE_COMMAND) logs -f
 
 init-mongo:
 	@echo "Initializing MongoDB..."
