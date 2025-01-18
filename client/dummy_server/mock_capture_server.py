@@ -24,12 +24,16 @@ def generate_meeting_id_endpoint():
 
 @app.route('/capture-screenshots', methods=['POST'])
 def capture_screenshots():
+    meeting_id = request.form.get('meeting_id')
+    if not meeting_id:
+        return jsonify({'error': 'Meeting ID is required'}), 400
+
     if 'screenshot' not in request.files:
         return jsonify({'error': 'No screenshot file found in the request'}), 400
 
     screenshot_file = request.files['screenshot']
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"screenshot_{timestamp}.png"
+    filename = f"{meeting_id}_screenshot_{timestamp}.png"
     filepath = os.path.join(SCREENSHOT_DIR, filename)
 
     try:
@@ -40,12 +44,16 @@ def capture_screenshots():
 
 @app.route('/capture-audio', methods=['POST'])
 def capture_audio():
+    meeting_id = request.form.get('meeting_id')
+    if not meeting_id:
+        return jsonify({'error': 'Meeting ID is required'}), 400
+
     if 'audio' not in request.files:
         return jsonify({'error': 'No audio file found in the request'}), 400
 
     audio_file = request.files['audio']
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"audio_{timestamp}.webm"
+    filename = f"{meeting_id}_audio_{timestamp}.webm"
     filepath = os.path.join(AUDIO_DIR, filename)
 
     try:
