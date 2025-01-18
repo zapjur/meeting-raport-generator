@@ -142,14 +142,64 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
       audioChunksRef.current.push(e.data);
     };
 
-    const processAudioAndRestartRecording = () => {
+    const convertToWav = async (audioBlob: Blob) => {
+      const audioContext = new (window.AudioContext || window.AudioContext)();
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+      const wavData = encodeWav(audioBuffer);
+      return new Blob([wavData], { type: "audio/wav" });
+    };
+
+    const encodeWav = (audioBuffer: AudioBuffer) => {
+      const numOfChannels = audioBuffer.numberOfChannels;
+      const sampleRate = audioBuffer.sampleRate;
+      const length = audioBuffer.length;
+      const buffer = new ArrayBuffer(44 + length * numOfChannels * 2);
+      const view = new DataView(buffer);
+      const writeString = (str: string, offset: number) => {
+        for (let i = 0; i < str.length; i++) {
+          view.setUint8(offset + i, str.charCodeAt(i));
+        }
+      };
+
+      // WAV header
+      writeString("RIFF", 0);
+      view.setUint32(4, 36 + length * numOfChannels * 2, true);
+      writeString("WAVE", 8);
+      writeString("fmt ", 12);
+      view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
+      view.setUint16(20, 1, true); // AudioFormat (1 for PCM)
+      view.setUint16(22, numOfChannels, true); // NumChannels
+      view.setUint32(24, sampleRate, true); // SampleRate
+      view.setUint32(28, sampleRate * numOfChannels * 2, true); // ByteRate
+      view.setUint16(32, numOfChannels * 2, true); // BlockAlign
+      view.setUint16(34, 16, true); // BitsPerSample
+      writeString("data", 36);
+      view.setUint32(40, length * numOfChannels * 2, true); // Subchunk2Size
+
+      // Interleave channels
+      const outputData = view.buffer;
+      let offset = 44;
+      for (let i = 0; i < length; i++) {
+        for (let channel = 0; channel < numOfChannels; channel++) {
+          const sample = audioBuffer.getChannelData(channel)[i];
+          view.setInt16(offset, sample * 0x7fff, true);
+          offset += 2;
+        }
+      }
+      return outputData;
+    };
+
+    const processAudioAndRestartRecording = async () => {
       if (!isAudioRecordingRef.current) return;
 
       const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
       audioChunksRef.current = [];
 
+      const wavBlob = await convertToWav(audioBlob);
       const formData = new FormData();
-      formData.append("audio", audioBlob, `audio-${Date.now()}.webm`);
+      formData.append("audio", wavBlob, `audio-${Date.now()}.wav`);
       formData.append("meeting_id", meetingId);
 
       fetch("http://127.0.0.1:8080/capture-audio", {

@@ -1,0 +1,8 @@
+Gdzie wysylac email?
+Naprawic wav encoding
+Cleanup
+Refactor, rozbic media capture an audio/ss?
+No i caly layout i styling No
+
+
+*Checkboxy co ma robic apka?
