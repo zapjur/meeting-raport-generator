@@ -79,19 +79,19 @@ services:
 #     depends_on:
 #       - orchestrator-service
 
-  # transcription-service:
-  #   build:
-  #     context: ./src/transcription-service
-  #     dockerfile: Dockerfile
-  #   container_name: transcription-service
-  #   depends_on:
-  #     - mongodb
-  #     - rabbitmq
-  #     - orchestrator-service
-  #   environment:
-  #     - HF_TOKEN=${HF_TOKEN}
-  #   volumes:
-  #     - shared-data-transcription:/shared-transcription
+  transcription-service:
+    build:
+      context: ./src/transcription-service
+      dockerfile: Dockerfile
+    container_name: transcription-service
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - orchestrator-service
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    volumes:
+      - shared-data-transcription:/shared-transcription
 
   ocr-service:
     build:
