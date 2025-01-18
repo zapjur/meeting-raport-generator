@@ -54,5 +54,17 @@ def capture_audio():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/end-meeting', methods=['POST'])
+def end_meeting():
+    data = request.get_json()
+    meeting_id = data.get('meeting_id')
+
+    if not meeting_id:
+        return jsonify({'error': 'Meeting ID is required'}), 400
+
+    # Print the meeting ID and return a success message
+    print(f"Meeting with ID {meeting_id} has ended.")
+    return jsonify({'message': f"Meeting with ID {meeting_id} has ended."}), 200
+
 if __name__ == '__main__':
     app.run(port=8080, debug=True)
