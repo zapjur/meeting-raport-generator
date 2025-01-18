@@ -5,7 +5,12 @@ declare class ImageCapture {
   grabFrame(): Promise<ImageBitmap>;
 }
 
-const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
+interface MediaCaptureProps {
+  isRecording: boolean;
+  meetingId: string | null;
+}
+
+const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const previousFrameRef = useRef<ImageData | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -15,6 +20,11 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
   const isAudioRecordingRef = useRef<boolean>(false);
 
   const startRecording = async () => {
+    if (!meetingId) {
+      console.error("Meeting ID is required to start recording.");
+      return;
+    }
+
     console.log("Starting screen capture...");
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
@@ -46,6 +56,11 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
   };
 
   const captureScreenshot = async (stream: MediaStream) => {
+    if (!meetingId) {
+      console.error("Meeting ID is required to capture screenshots.");
+      return;
+    }
+
     if (canvasRef.current) {
       const canvas = canvasRef.current;
       const videoTrack = stream.getVideoTracks()[0];
@@ -68,6 +83,7 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
               if (blob) {
                 const formData = new FormData();
                 formData.append("screenshot", blob, `screenshot-${Date.now()}.png`);
+                formData.append("meeting_id", meetingId);
 
                 try {
                   const response = await fetch("http://127.0.0.1:8080/capture-screenshots", {
@@ -111,6 +127,11 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
   };
 
   const startAudioRecording = (stream: MediaStream) => {
+    if (!meetingId) {
+      console.error("Meeting ID is required to start audio recording.");
+      return;
+    }
+
     const mediaRecorder = new MediaRecorder(stream);
     mediaRecorderRef.current = mediaRecorder;
 
@@ -129,6 +150,7 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
 
       const formData = new FormData();
       formData.append("audio", audioBlob, `audio-${Date.now()}.webm`);
+      formData.append("meeting_id", meetingId);
 
       fetch("http://127.0.0.1:8080/capture-audio", {
         method: "POST",

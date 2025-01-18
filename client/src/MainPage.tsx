@@ -73,7 +73,7 @@ const MainPage: React.FC = () => {
           {isRecording ? "Stop capturing" : "Start capturing now!"}
         </button>
 
-        <MediaCapture isRecording={isRecording} />
+        <MediaCapture isRecording={isRecording} meetingId={meetingId} />
 
         {meetingId && (
           <p className="mt-4 text-lg text-green-400">
