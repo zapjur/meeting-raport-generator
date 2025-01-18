@@ -6,10 +6,32 @@ const MainPage: React.FC = () => {
   const [meetingId, setMeetingId] = useState<string | null>(null);
 
   const toggleRecording = async () => {
-    setIsRecording(!isRecording);
+    if (isRecording) {
+      // Stop recording and send the meeting ID to the endpoint
+      if (meetingId) {
+        try {
+          const response = await fetch("http://127.0.0.1:8080/end-meeting", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ meeting_id: meetingId }),
+          });
 
-    // Fetch the meeting ID when starting the recording
-    if (!isRecording) {
+          if (!response.ok) {
+            throw new Error(`Failed to end meeting: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          console.log(data.message); // Log the response message
+        } catch (error) {
+          console.error("Error ending the meeting:", error);
+        }
+      }
+
+      setMeetingId(null); // Clear the meeting ID after ending
+    } else {
+      // Start recording and fetch a new meeting ID
       try {
         const response = await fetch("http://127.0.0.1:8080/generate-meeting-id");
         const data = await response.json();
@@ -23,6 +45,8 @@ const MainPage: React.FC = () => {
         setMeetingId(null);
       }
     }
+
+    setIsRecording(!isRecording);
   };
 
   return (
