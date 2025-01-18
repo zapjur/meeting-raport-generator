@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 import os
 from flask_cors import CORS
 from datetime import datetime
+import random
+import string
 
 app = Flask(__name__)
 CORS(app)
@@ -10,6 +12,15 @@ SCREENSHOT_DIR = "screenshots"
 AUDIO_DIR = "audio"
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 os.makedirs(AUDIO_DIR, exist_ok=True)
+
+def generate_meeting_id(length=8):
+    """Generate a random string of letters and digits as the meeting ID."""
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
+@app.route('/generate-meeting-id', methods=['GET'])
+def generate_meeting_id_endpoint():
+    meeting_id = generate_meeting_id()
+    return jsonify({'meeting_id': meeting_id})
 
 @app.route('/capture-screenshots', methods=['POST'])
 def capture_screenshots():

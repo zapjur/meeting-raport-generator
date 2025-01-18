@@ -1,6 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
-// Declare ImageCapture type if not available
 declare class ImageCapture {
   constructor(track: MediaStreamTrack);
   grabFrame(): Promise<ImageBitmap>;
@@ -9,49 +8,43 @@ declare class ImageCapture {
 const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const previousFrameRef = useRef<ImageData | null>(null);
-  const mediaStreamRef = useRef<MediaStream | null>(null); 
+  const mediaStreamRef = useRef<MediaStream | null>(null);
   const screenshotIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null); 
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const isAudioRecordingRef = useRef<boolean>(false);
 
-  // Function to start capturing media (video + audio)
   const startRecording = async () => {
     console.log("Starting screen capture...");
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
       console.log("Screen and audio stream obtained", stream);
 
-      // Store the media stream reference
       mediaStreamRef.current = stream;
 
-      // Start capturing screenshots at regular intervals
       screenshotIntervalRef.current = setInterval(() => captureScreenshot(stream), 1000);
 
-      // Start audio recording in chunks
       startAudioRecording(stream);
     } catch (err) {
       console.error("Error starting screen capture:", err);
     }
   };
 
-  // Function to stop media capture and audio recording
   const stopRecording = () => {
     console.log("Stopping capture...");
     if (screenshotIntervalRef.current) clearInterval(screenshotIntervalRef.current);
 
-    // Stop all media stream tracks
-    mediaStreamRef.current?.getTracks().forEach(track => track.stop());
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
 
-    // Stop audio recording
+    isAudioRecordingRef.current = false;
     mediaRecorderRef.current?.stop();
 
-    // Clear audio chunks
+    // Reset all references to allow re-initialization
+    mediaStreamRef.current = null;
+    mediaRecorderRef.current = null;
     audioChunksRef.current = [];
-
-
   };
 
-  // Function to capture screenshots and upload them to the server
   const captureScreenshot = async (stream: MediaStream) => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
@@ -60,7 +53,7 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
 
       try {
         const imageBitmap = await imageCapture.grabFrame();
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
 
         if (ctx) {
           canvas.width = imageBitmap.width;
@@ -71,14 +64,13 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
           if (!previousFrameRef.current || compareFrames(previousFrameRef.current, currentFrameData)) {
             previousFrameRef.current = currentFrameData;
 
-            // Upload the screenshot
             canvas.toBlob(async (blob) => {
               if (blob) {
                 const formData = new FormData();
                 formData.append("screenshot", blob, `screenshot-${Date.now()}.png`);
 
                 try {
-                  const response = await fetch("http://localhost:8080/capture-screenshots", {
+                  const response = await fetch("http://127.0.0.1:8080/capture-screenshots", {
                     method: "POST",
                     body: formData,
                   });
@@ -88,7 +80,7 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
                   console.error("Error sending screenshot to server:", err);
                 }
               }
-            }, 'image/png');
+            }, "image/png");
           }
         }
       } catch (err) {
@@ -97,7 +89,6 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
     }
   };
 
-  // Compare two frames for significant changes
   const compareFrames = (previousFrame: ImageData, currentFrame: ImageData) => {
     const pixelCount = previousFrame.width * previousFrame.height;
     let diffCount = 0;
@@ -116,64 +107,60 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
       }
     }
 
-    return (diffCount / pixelCount) > 0.01;
+    return diffCount / pixelCount > 0.01;
   };
 
-  // Start recording audio in 10-second chunks
   const startAudioRecording = (stream: MediaStream) => {
     const mediaRecorder = new MediaRecorder(stream);
     mediaRecorderRef.current = mediaRecorder;
 
-    // Store audio chunks
     audioChunksRef.current = [];
+    isAudioRecordingRef.current = true;
 
-    // Store audio data when available
     mediaRecorder.ondataavailable = (e) => {
       audioChunksRef.current.push(e.data);
     };
 
-    // Process and send audio data when recording stops
     const processAudioAndRestartRecording = () => {
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-      audioChunksRef.current = []; 
+      if (!isAudioRecordingRef.current) return;
+
+      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+      audioChunksRef.current = [];
 
       const formData = new FormData();
       formData.append("audio", audioBlob, `audio-${Date.now()}.webm`);
 
-      // Send the audio to the server
-      fetch("http://localhost:8080/capture-audio", {
+      fetch("http://127.0.0.1:8080/capture-audio", {
         method: "POST",
         body: formData,
       })
-        .then(response => response.json())
-        .then(data => console.log("Audio upload response:", data))
-        .catch(err => console.error("Error uploading audio:", err));
+        .then((response) => response.json())
+        .then((data) => console.log("Audio upload response:", data))
+        .catch((err) => console.error("Error uploading audio:", err));
     };
 
-    // Start recording and automatically stop after 10 seconds
     const startNewRecording = () => {
+      if (!isAudioRecordingRef.current) return;
+
       mediaRecorder.start();
-      console.log('Audio recording started.');
+      console.log("Audio recording started.");
 
       setTimeout(() => {
-        if (mediaRecorder.state === 'recording') {
+        if (mediaRecorder.state === "recording" && isAudioRecordingRef.current) {
           console.log("Stopping recording after 10 seconds.");
-          mediaRecorder.stop(); 
+          mediaRecorder.stop();
         }
-      }, 10000); 
+      }, 10000);
     };
 
-    // Event handler when the recording stops
     mediaRecorder.onstop = () => {
       processAudioAndRestartRecording();
       startNewRecording();
     };
 
-    // Start the initial recording
     startNewRecording();
   };
 
-  // Effect to handle recording based on `isRecording` prop
   useEffect(() => {
     if (isRecording && !mediaStreamRef.current) {
       startRecording();
@@ -188,8 +175,8 @@ const MediaCapture: React.FC<{ isRecording: boolean }> = ({ isRecording }) => {
 
   return (
     <>
-      <video style={{ display: 'none' }} autoPlay muted />
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
+      <video style={{ display: "none" }} autoPlay muted />
+      <canvas ref={canvasRef} style={{ display: "none" }} />
     </>
   );
 };

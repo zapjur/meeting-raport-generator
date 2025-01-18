@@ -3,9 +3,26 @@ import MediaCapture from "./MediaCapture";
 
 const MainPage: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
+  const [meetingId, setMeetingId] = useState<string | null>(null);
 
-  const toggleRecording = () => {
+  const toggleRecording = async () => {
     setIsRecording(!isRecording);
+
+    // Fetch the meeting ID when starting the recording
+    if (!isRecording) {
+      try {
+        const response = await fetch("http://127.0.0.1:8080/generate-meeting-id");
+        const data = await response.json();
+        if (data?.meeting_id) {
+          setMeetingId(data.meeting_id);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (error) {
+        console.error("Error fetching meeting ID:", error);
+        setMeetingId(null); // Reset meeting ID on error
+      }
+    }
   };
 
   return (
@@ -13,7 +30,10 @@ const MainPage: React.FC = () => {
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-purple-500">
-          Meet<span className="text-orange-400">Buddy</span> <span role="img" aria-label="laptop">👩‍💻</span>
+          Meet<span className="text-orange-400">Buddy</span>{" "}
+          <span role="img" aria-label="laptop">
+            👩‍💻
+          </span>
         </h1>
         <p className="text-gray-400">Your personal remote meetings assistant.</p>
       </div>
@@ -31,17 +51,11 @@ const MainPage: React.FC = () => {
 
         <MediaCapture isRecording={isRecording} />
 
-        <p className="text-gray-400 mb-4">or</p>
-
-        <div className="flex items-center space-x-4 mb-6">
-          <p className="text-white text-lg">Start capturing at:</p>
-          <span className="bg-orange-400 text-white font-semibold py-2 px-4 rounded-lg text-xl">
-            14:45
-          </span>
-          <button className="bg-orange-400 hover:bg-orange-500 text-white font-semibold py-2 px-4 rounded-lg text-lg transition duration-300 ease-in-out">
-            Submit
-          </button>
-        </div>
+        {meetingId && (
+          <p className="mt-4 text-lg text-green-400">
+            Your Meeting ID: <span className="font-bold">{meetingId}</span>
+          </p>
+        )}
       </div>
 
       {/* Features Checklist */}

@@ -1,45 +1,50 @@
 DOCKER_COMPOSE_FILE=docker-compose.yml
+DOCKER_COMPOSE_CMD=docker-compose  # Default to macOS/older Docker versions
+
+# Detect Linux environment
+ifeq ($(shell uname -s), Linux)
+    DOCKER_COMPOSE_CMD=docker compose
+endif
 
 ## up: starts all containers in the background without forcing build
 up:
 	@echo "Starting Docker containers..."
-	docker-compose up -d
+	$(DOCKER_COMPOSE_CMD) up -d
 	@echo "Docker containers started!"
 
 ## up_build: stops docker-compose (if running), builds all images and starts docker compose
 up_build:
 	@echo "Stopping Docker containers (if running)..."
-	docker-compose down
+	$(DOCKER_COMPOSE_CMD) down
 	@echo "Building and starting Docker containers..."
-	docker-compose up --build -d
+	$(DOCKER_COMPOSE_CMD) up --build -d
 	@echo "Docker containers built and started!"
 
 up_build_clean: clean up_build
 
 up_gpu:
 	@echo "Stopping Docker containers (if running)..."
-	docker-compose down
-	@echo "Building and starting Docker containers..."
-	docker-compose -f docker-compose.yml up --build -d --gpus all
-	@echo "Docker containers built and started!"
+	$(DOCKER_COMPOSE_CMD) down
+	@echo "Building and starting Docker containers with GPU support..."
+	$(DOCKER_COMPOSE_CMD) -f $(DOCKER_COMPOSE_FILE) up --build -d --gpus all
+	@echo "Docker containers built and started with GPU support!"
 
 ## down: stops all containers
 down:
 	@echo "Stopping Docker containers..."
-	docker-compose down
+	$(DOCKER_COMPOSE_CMD) down
 	@echo "Done!"
 
 ## logs: shows logs from all services
 logs:
 	@echo "Fetching logs from all services..."
-	docker-compose logs -f
+	$(DOCKER_COMPOSE_CMD) logs -f
 
 init-mongo:
 	@echo "Initializing MongoDB..."
 	docker exec -it mongodb mongoimport --db database --collection transcriptions --file /docker-entrypoint-initdb.d/transcriptions.json --jsonArray -u admin -p password --authenticationDatabase admin
 	@echo "MongoDB initialized!"
 
-## clean: cleans embedding, transcription, and summary collections
 ## clean: cleans embedding, transcription, and summary collections
 clean:
 	@echo "Cleaning MongoDB collections: embeddings, transcriptions, and summaries..."
