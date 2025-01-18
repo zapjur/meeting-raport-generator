@@ -20,7 +20,7 @@ const MainPage: React.FC = () => {
         }
       } catch (error) {
         console.error("Error fetching meeting ID:", error);
-        setMeetingId(null); // Reset meeting ID on error
+        setMeetingId(null);
       }
     }
   };
