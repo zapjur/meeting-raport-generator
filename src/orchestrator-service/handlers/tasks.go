@@ -24,6 +24,36 @@ type LogMessage struct {
 	Details   map[string]interface{} `json:"details"`
 }
 
+func (h *TaskHandler) SendEmailTask(meetingId, filePath, email string) error {
+	taskID := fmt.Sprintf("%s-email-%d", meetingId, time.Now().UnixNano())
+	taskMessage := fmt.Sprintf(`{"meeting_id": "%s", "task_id": "%s", "file_path": "%s", "email": "%s"}`, meetingId, taskID, filePath, email)
+
+	ctx := context.Background()
+	err := h.RedisManager.AddTask(ctx, meetingId, taskID)
+	if err != nil {
+		return fmt.Errorf("failed to add task to Redis: %w", err)
+	}
+
+	err = h.RabbitChannel.Publish(
+		"",
+		"email_queue",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType:   "application/json",
+			Body:          []byte(taskMessage),
+			CorrelationId: taskID,
+		},
+	)
+	if err != nil {
+		h.RedisManager.UpdateTaskStatus(ctx, meetingId, taskID, "failed")
+		return fmt.Errorf("failed to publish task to RabbitMQ: %w", err)
+	}
+
+	log.Printf("Task sent to email_queue: %s", taskMessage)
+	return nil
+}
+
 func (h *TaskHandler) SendReportTask(meetingId string) error {
 	taskID := fmt.Sprintf("%s-report-%d", meetingId, time.Now().UnixNano())
 	taskMessage := fmt.Sprintf(`{"meeting_id": "%s", "task_id": "%s"}`, meetingId, taskID)

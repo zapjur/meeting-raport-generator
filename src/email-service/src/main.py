@@ -26,17 +26,17 @@ def process_message(ch, method, properties, body, ack_channel):
                 logging.warning("Channel is closed. Cannot nack message.")
             return
 
-        logging.info(f"Received task for file: {file_path}, meeting ID: {email}")
+        logging.info(f"Received task for file: {file_path}, sending to: {email}")
 
         send_email(email, file_path)
 
-        # ack_message = {
-        #     "meeting_id": email, ## DO ZMIANY ALE IDK JAK TO OCR PRZYJMIE JAK TERAZ ZMIENIE XDD
-        #     "task_id": task_id,
-        #     "task_type": "ocr",
-        #     "status": "completed"
-        # }
-        # send_ack_message(ack_message, ack_channel)
+        ack_message = {
+            "meeting_id": message.get("meeting_id"),
+            "task_id": task_id,
+            "task_type": "email",
+            "status": "completed"
+        }
+        send_ack_message(ack_message, ack_channel)
 
         if ch.is_open:
             ch.basic_ack(delivery_tag=method.delivery_tag)
@@ -50,13 +50,13 @@ def process_message(ch, method, properties, body, ack_channel):
         else:
             logging.warning("Channel is closed. Cannot nack message.")
 
-        # ack_message = {
-        #     "meeting_id": message.get("meeting_id"),
-        #     "task_id": properties.correlation_id,
-        #     "task_type": "ocr",
-        #     "status": "failed"
-        # }
-        # send_ack_message(ack_message, ack_channel)
+        ack_message = {
+            "meeting_id": message.get("meeting_id"),
+            "task_id": properties.correlation_id,
+            "task_type": "email",
+            "status": "failed"
+        }
+        send_ack_message(ack_message, ack_channel)
 
 
 def send_ack_message(message, ack_channel):

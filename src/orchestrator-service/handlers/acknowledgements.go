@@ -4,9 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-
 	"github.com/streadway/amqp"
+	"log"
 	"orchestrator-service/redis"
 )
 
@@ -63,6 +62,17 @@ func HandleAckMessage(rm *redis.RedisManager, taskHandler *TaskHandler) func(amq
 			}
 		}
 
+		if ack.TaskType == "report" && ack.Status != "pending" {
+			log.Printf("All tasks completed for meeting_id: %s", ack.MeetingId)
+			email := "maciekjur123@gmail.com" // TODO: Get email from the redis
+			filePath := fmt.Sprintf("/shared-report/%s/meeting_report_%s.pdf", ack.MeetingId, ack.MeetingId)
+			err = taskHandler.SendEmailTask(ack.MeetingId, filePath, email)
+			if err != nil {
+				log.Printf("Error sending email task for meeting_id: %s %v", ack.MeetingId, err)
+			}
+
+		}
+
 	}
 }
 
@@ -77,7 +87,12 @@ func checkAndSendReport(ctx context.Context, rm *redis.RedisManager, taskHandler
 		return fmt.Errorf("failed to check Summary tasks for meeting_id: %s %v", meetingID, err)
 	}
 
-	if allOCRCompleted && allSummaryCompleted {
+	allTranscriptionCompleted, err := rm.AllTasksOfTypeCompleted(ctx, meetingID, "transcription")
+	if err != nil {
+		return fmt.Errorf("failed to check Transcription tasks for meeting_id: %s %v", meetingID, err)
+	}
+
+	if allOCRCompleted && allSummaryCompleted && allTranscriptionCompleted {
 		log.Printf("All OCR and Summary tasks completed for meeting_id: %s. Sending report task...", meetingID)
 		return taskHandler.SendReportTask(meetingID)
 	}
