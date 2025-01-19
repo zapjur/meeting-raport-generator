@@ -82,6 +82,13 @@ func (app *Config) StartTranscription(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (app *Config) StartOcr(w http.ResponseWriter, r *http.Request) {
+	err := app.TaskHandler.SendOcrTask("867297")
+	if err != nil {
+		log.Printf("Error sending OCR task: %v", err)
+	}
+}
+
 func (app *Config) CheckDependenciesAndTriggerTasks(meetingId string) {
 	ctx := context.Background()
 

@@ -51,4 +51,5 @@ clean:
 	docker exec -it mongodb mongosh database -u admin -p password --authenticationDatabase admin --eval "db.embeddings.deleteMany({})"
 	docker exec -it mongodb mongosh database -u admin -p password --authenticationDatabase admin --eval "db.transcriptions.deleteMany({})"
 	docker exec -it mongodb mongosh database -u admin -p password --authenticationDatabase admin --eval "db.summaries.deleteMany({})"
+	docker exec -it mongodb mongosh database -u admin -p password --authenticationDatabase admin --eval "db.ocr_results.deleteMany({})"
 	@echo "MongoDB collections cleaned!"

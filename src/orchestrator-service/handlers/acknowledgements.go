@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/streadway/amqp"
@@ -54,5 +55,32 @@ func HandleAckMessage(rm *redis.RedisManager, taskHandler *TaskHandler) func(amq
 				}
 			}
 		}
+
+		if ack.TaskType == "ocr" || ack.TaskType == "summary" {
+			err = checkAndSendReport(ctx, rm, taskHandler, ack.MeetingId)
+			if err != nil {
+				log.Printf("Error sending report task for meeting_id: %s %v", ack.MeetingId, err)
+			}
+		}
+
 	}
+}
+
+func checkAndSendReport(ctx context.Context, rm *redis.RedisManager, taskHandler *TaskHandler, meetingID string) error {
+	allOCRCompleted, err := rm.AllTasksOfTypeCompleted(ctx, meetingID, "ocr")
+	if err != nil {
+		return fmt.Errorf("failed to check OCR tasks for meeting_id: %s %v", meetingID, err)
+	}
+
+	allSummaryCompleted, err := rm.AllTasksOfTypeCompleted(ctx, meetingID, "summary")
+	if err != nil {
+		return fmt.Errorf("failed to check Summary tasks for meeting_id: %s %v", meetingID, err)
+	}
+
+	if allOCRCompleted && allSummaryCompleted {
+		log.Printf("All OCR and Summary tasks completed for meeting_id: %s. Sending report task...", meetingID)
+		return taskHandler.SendReportTask(meetingID)
+	}
+
+	return nil
 }

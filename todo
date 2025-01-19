@@ -1,4 +1,4 @@
-logika końca spotkania, wysłanie summary po końcu transkrypcji działa. dodać resztę
+logika końca spotkania, wysyłanie maile po wygenerowaniu raportu
 endpointy do screenshot i audio
 ustalić jaki format message wysylany do mailera (file_path, email, meeting_id??)
 odkomentować wysyłanie potwierdzenia wyslania maila w email-service
