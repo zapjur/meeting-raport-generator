@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"time"
 
@@ -41,4 +42,24 @@ func ConnectToMongoDB(uri string) (*mongo.Client, error) {
 	}
 
 	return nil, fmt.Errorf("failed to connect to MongoDB after %d retries: %w", retries, err)
+}
+
+func DeleteMeetingData(ctx context.Context, client *mongo.Client, databaseName, meetingID string) error {
+	collections := []string{"summaries", "ocr_results", "transcriptions", "embeddings"}
+
+	for _, collectionName := range collections {
+		collection := client.Database(databaseName).Collection(collectionName)
+
+		filter := bson.M{"meeting_id": meetingID}
+
+		result, err := collection.DeleteMany(ctx, filter)
+		if err != nil {
+			log.Printf("Error deleting documents from collection %s: %v", collectionName, err)
+			return err
+		}
+
+		log.Printf("Deleted %d documents from collection %s with meeting_id=%s", result.DeletedCount, collectionName, meetingID)
+	}
+
+	return nil
 }

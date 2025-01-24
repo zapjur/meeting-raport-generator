@@ -35,7 +35,7 @@ func (r *RedisManager) AllTasksCompleted(ctx context.Context, meetingID string) 
 		return false, err
 	}
 	for _, status := range tasks {
-		if status == "pending" {
+		if status != "completed" {
 			return false, nil
 		}
 	}
@@ -50,7 +50,7 @@ func (r *RedisManager) AllTasksOfTypeCompleted(ctx context.Context, meetingID, t
 	}
 
 	for taskID, status := range tasks {
-		if taskTypeInTaskID(taskID, taskType) && status == "pending" {
+		if taskTypeInTaskID(taskID, taskType) && status != "completed" {
 			return false, nil
 		}
 	}
@@ -89,4 +89,32 @@ func (r *RedisManager) SetMeetingEmail(ctx context.Context, meetingID, email str
 func (r *RedisManager) GetMeetingEmail(ctx context.Context, meetingID string) (string, error) {
 	key := fmt.Sprintf("meeting:%s:email", meetingID)
 	return r.Client.Get(ctx, key).Result()
+}
+
+func (r *RedisManager) DeleteAllMeetingEntries(ctx context.Context, meetingID string) error {
+	pattern := fmt.Sprintf("meeting:%s:*", meetingID)
+	var cursor uint64
+	for {
+		keys, nextCursor, err := r.Client.Scan(ctx, cursor, pattern, 100).Result()
+		if err != nil {
+			log.Printf("Error during SCAN for meeting_id=%s: %v", meetingID, err)
+			return err
+		}
+
+		if len(keys) > 0 {
+			err = r.Client.Del(ctx, keys...).Err()
+			if err != nil {
+				log.Printf("Error deleting keys for meeting_id=%s: %v", meetingID, err)
+				return err
+			}
+		}
+
+		if nextCursor == 0 {
+			break
+		}
+		cursor = nextCursor
+	}
+
+	log.Printf("Deleted all Redis entries for meeting_id=%s", meetingID)
+	return nil
 }
