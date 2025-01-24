@@ -1,2 +1,22 @@
-logika końca spotkania - połączenie z frontem
-endpointy do screenshot i audio
+połączenie z frontem
+konwersja webm na wav
+usuwanie danych po wysłaniu maila
+test postman
+
+test generate-meeting endpoint:
+curl "http://localhost:8080/generate-meeting-id?email=piotrzapior0@gmail.com"
+
+test capture-screenshots endpoint:
+curl -X POST http://localhost:8080/capture-screenshots \
+     -F "screenshot=@test_ocr.png" \
+     -F "meeting_id=TVCXPpnxzK"
+
+test capture-audio endpoint:
+curl -X POST http://localhost:8080/capture-audio \
+     -F "audio=@test_audio.wav" \
+     -F "meeting_id=TVCXPpnxzK"
+
+test end-meeting endpoint:
+curl -X POST http://localhost:8080/end-meeting \
+     -H "Content-Type: application/json" \
+     -d '{"meeting_id": "TVCXPpnxzK"}'

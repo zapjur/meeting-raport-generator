@@ -64,7 +64,11 @@ func HandleAckMessage(rm *redis.RedisManager, taskHandler *TaskHandler) func(amq
 
 		if ack.TaskType == "report" && ack.Status != "pending" {
 			log.Printf("All tasks completed for meeting_id: %s", ack.MeetingId)
-			email := "maciekjur123@gmail.com" // TODO: Get email from the redis
+			email, err := rm.GetMeetingEmail(ctx, ack.MeetingId)
+			if err != nil {
+				log.Printf("Failed to get email for meeting_id: %s %v", ack.MeetingId, err)
+				return
+			}
 			filePath := fmt.Sprintf("/shared-report/%s/meeting_report_%s.pdf", ack.MeetingId, ack.MeetingId)
 			err = taskHandler.SendEmailTask(ack.MeetingId, filePath, email)
 			if err != nil {

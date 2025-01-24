@@ -114,9 +114,8 @@ func (h *TaskHandler) SendSummaryTask(meetingId string) error {
 	return nil
 }
 
-func (h *TaskHandler) SendTranscriptionTask(meetingId string) error {
+func (h *TaskHandler) SendTranscriptionTask(meetingId, filePath string) error {
 	taskID := fmt.Sprintf("%s-transcription-%d", meetingId, time.Now().UnixNano())
-	filePath := "/shared-transcription/test_audio.wav"
 	taskMessage := fmt.Sprintf(`{"meeting_id": "%s", "file_path": "%s", "task_id": "%s"}`, meetingId, filePath, taskID)
 
 	ctx := context.Background()

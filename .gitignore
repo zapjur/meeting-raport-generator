@@ -10,6 +10,7 @@ orchestrator-service-binary
 ### dotenv ###
 .env
 test_audio.wav
+test_audio.webm
 test_ocr.png
 ### GoLand ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider

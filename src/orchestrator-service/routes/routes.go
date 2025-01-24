@@ -31,7 +31,6 @@ func Routes(app *handlers.Config) *chi.Mux {
 	r.Post("/capture-screenshots", app.CaptureScreenshots)
 	r.Post("/capture-audio", app.CaptureAudio)
 	r.Post("/end-meeting", app.EndMeeting)
-	r.Post("/start-transcription", app.StartTranscription)
 
 	return r
 }

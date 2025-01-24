@@ -74,3 +74,19 @@ func (r *RedisManager) GetMeetingStatus(ctx context.Context, meetingID string) (
 	key := fmt.Sprintf("meeting:%s:status", meetingID)
 	return r.Client.Get(ctx, key).Result()
 }
+
+func (r *RedisManager) SetMeetingEmail(ctx context.Context, meetingID, email string) error {
+	key := fmt.Sprintf("meeting:%s:email", meetingID)
+	err := r.Client.Set(ctx, key, email, 0).Err()
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Saved email for meeting_id=%s: email=%s", meetingID, email)
+	return nil
+}
+
+func (r *RedisManager) GetMeetingEmail(ctx context.Context, meetingID string) (string, error) {
+	key := fmt.Sprintf("meeting:%s:email", meetingID)
+	return r.Client.Get(ctx, key).Result()
+}

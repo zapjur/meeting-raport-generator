@@ -7,10 +7,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"orchestrator-service/redis"
 	"os"
 	"path/filepath"
+	"regexp"
+	"time"
 )
 
 type MeetingIdResponse struct {
@@ -24,19 +27,34 @@ type Config struct {
 	TaskHandler   *TaskHandler
 }
 
+func isValidEmail(email string) bool {
+	re := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	return re.MatchString(email)
+}
+
 func (app *Config) GenerateMeetingId(w http.ResponseWriter, r *http.Request) {
-	//src := rand.NewSource(time.Now().UnixNano())
-	//rng := rand.New(src)
-	//
-	//const idLength = 10
-	//const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	//
-	//meetingId := make([]byte, idLength)
-	//for i := range meetingId {
-	//	meetingId[i] = charset[rng.Intn(len(charset))]
-	//}
-	//test purpose
-	meetingId := "867297"
+
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		http.Error(w, "Missing email in query params", http.StatusBadRequest)
+		return
+	}
+
+	if !isValidEmail(email) {
+		http.Error(w, "Invalid email format", http.StatusBadRequest)
+		return
+	}
+
+	src := rand.NewSource(time.Now().UnixNano())
+	rng := rand.New(src)
+
+	const idLength = 10
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	meetingId := make([]byte, idLength)
+	for i := range meetingId {
+		meetingId[i] = charset[rng.Intn(len(charset))]
+	}
 
 	response := MeetingIdResponse{
 		MeetingId: string(meetingId),
@@ -48,26 +66,51 @@ func (app *Config) GenerateMeetingId(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to set meeting status: %v", err)
 	}
 
+	if err := app.RedisManager.SetMeetingEmail(ctx, response.MeetingId, email); err != nil {
+		http.Error(w, "Failed to set meeting email", http.StatusInternalServerError)
+		log.Printf("Failed to set meeting email: %v", err)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
 
 func (app *Config) EndMeeting(w http.ResponseWriter, r *http.Request) {
-	meetingId := r.URL.Query().Get("meeting_id")
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	var requestData struct {
+		MeetingId string `json:"meeting_id"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&requestData)
+	if err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		log.Printf("Error decoding JSON: %v", err)
+		return
+	}
+
+	meetingId := requestData.MeetingId
 	if meetingId == "" {
-		http.Error(w, "Missing meeting_id query parameter", http.StatusBadRequest)
+		http.Error(w, "Missing meeting_id in request body", http.StatusBadRequest)
 		return
 	}
 
 	ctx := context.Background()
-	if err := app.RedisManager.SetMeetingStatus(ctx, meetingId, "ended"); err != nil {
+	if err = app.RedisManager.SetMeetingStatus(ctx, meetingId, "ended"); err != nil {
 		http.Error(w, "Failed to set meeting status", http.StatusInternalServerError)
 		log.Printf("Failed to set meeting status: %v", err)
+		return
 	}
+
 	app.CheckDependenciesAndTriggerTasks(meetingId)
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message": "Meeting ended successfully"}`))
 }
 
 func (app *Config) CaptureScreenshots(w http.ResponseWriter, r *http.Request) {
@@ -135,14 +178,67 @@ func (app *Config) CaptureScreenshots(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Config) CaptureAudio(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
 
-}
+	err := r.ParseMultipartForm(100 << 20)
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		log.Printf("Error parsing form: %v", err)
+		return
+	}
 
-func (app *Config) StartTranscription(w http.ResponseWriter, r *http.Request) {
-	err := app.TaskHandler.SendTranscriptionTask("867297")
+	file, header, err := r.FormFile("audio")
+	if err != nil {
+		http.Error(w, "Missing audio file", http.StatusBadRequest)
+		log.Printf("Error retrieving file: %v", err)
+		return
+	}
+	defer file.Close()
+
+	meetingId := r.FormValue("meeting_id")
+	if meetingId == "" {
+		http.Error(w, "Missing meeting_id", http.StatusBadRequest)
+		return
+	}
+
+	basePath := "/shared-transcription"
+	meetingDir := filepath.Join(basePath, meetingId)
+
+	err = os.MkdirAll(meetingDir, os.ModePerm)
+	if err != nil {
+		http.Error(w, "Unable to create directory", http.StatusInternalServerError)
+		log.Printf("Error creating directory: %v", err)
+		return
+	}
+
+	filePath := filepath.Join(meetingDir, header.Filename)
+	out, err := os.Create(filePath)
+	if err != nil {
+		http.Error(w, "Unable to save file", http.StatusInternalServerError)
+		log.Printf("Error saving file: %v", err)
+		return
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, file)
+	if err != nil {
+		http.Error(w, "Error saving file", http.StatusInternalServerError)
+		log.Printf("Error writing file: %v", err)
+		return
+	}
+
+	log.Printf("Audio saved successfully in: %s", filePath)
+
+	err = app.TaskHandler.SendTranscriptionTask(meetingId, filePath)
 	if err != nil {
 		log.Printf("Error sending transcription task: %v", err)
 	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Audio uploaded successfully"))
 }
 
 func (app *Config) CheckDependenciesAndTriggerTasks(meetingId string) {
