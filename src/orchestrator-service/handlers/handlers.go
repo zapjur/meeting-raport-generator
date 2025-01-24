@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/streadway/amqp"
 	"go.mongodb.org/mongo-driver/mongo"
 	"io"
@@ -11,8 +12,10 @@ import (
 	"net/http"
 	"orchestrator-service/redis"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -214,25 +217,43 @@ func (app *Config) CaptureAudio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filePath := filepath.Join(meetingDir, header.Filename)
-	out, err := os.Create(filePath)
+	webmFilePath := filepath.Join(meetingDir, header.Filename)
+	webmFile, err := os.Create(webmFilePath)
 	if err != nil {
 		http.Error(w, "Unable to save file", http.StatusInternalServerError)
 		log.Printf("Error saving file: %v", err)
 		return
 	}
-	defer out.Close()
+	defer webmFile.Close()
 
-	_, err = io.Copy(out, file)
+	_, err = io.Copy(webmFile, file)
 	if err != nil {
 		http.Error(w, "Error saving file", http.StatusInternalServerError)
 		log.Printf("Error writing file: %v", err)
 		return
 	}
 
-	log.Printf("Audio saved successfully in: %s", filePath)
+	log.Printf("WebM audio saved successfully in: %s", webmFilePath)
 
-	err = app.TaskHandler.SendTranscriptionTask(meetingId, filePath)
+	wavFilePath := filepath.Join(meetingDir, strings.TrimSuffix(header.Filename, ".webm")+".wav")
+
+	err = convertWebmToWav(webmFilePath, wavFilePath)
+	if err != nil {
+		http.Error(w, "Error converting audio to WAV", http.StatusInternalServerError)
+		log.Printf("Error converting audio: %v", err)
+		return
+	}
+
+	log.Printf("Audio converted to WAV successfully: %s", wavFilePath)
+
+	err = os.Remove(webmFilePath)
+	if err != nil {
+		log.Printf("Error deleting original WebM file: %v", err)
+	}
+
+	log.Printf("Audio saved successfully in: %s", wavFilePath)
+
+	err = app.TaskHandler.SendTranscriptionTask(meetingId, wavFilePath)
 	if err != nil {
 		log.Printf("Error sending transcription task: %v", err)
 	}
@@ -257,4 +278,15 @@ func (app *Config) CheckDependenciesAndTriggerTasks(meetingId string) {
 			log.Printf("Error sending summary task for meeting_id=%s: %v", meetingId, err)
 		}
 	}
+}
+
+func convertWebmToWav(inputPath, outputPath string) error {
+	cmd := exec.Command("ffmpeg", "-i", inputPath, "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2", outputPath)
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("ffmpeg error: %v, output: %s", err, string(output))
+	}
+
+	return nil
 }

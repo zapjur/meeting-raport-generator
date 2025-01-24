@@ -6,6 +6,8 @@ COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 
+RUN apt-get update && apt-get install -y ffmpeg && apt-get clean
+
 COPY . ./
 
 RUN go build -o orchestrator-service
