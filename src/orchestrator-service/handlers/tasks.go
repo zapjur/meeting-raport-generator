@@ -145,9 +145,8 @@ func (h *TaskHandler) SendTranscriptionTask(meetingId string) error {
 	return nil
 }
 
-func (h *TaskHandler) SendOcrTask(meetingId string) error {
+func (h *TaskHandler) SendOcrTask(meetingId, filePath string) error {
 	taskID := fmt.Sprintf("%s-ocr-%d", meetingId, time.Now().UnixNano())
-	filePath := "/shared-ocr/test_ocr.png"
 	taskMessage := fmt.Sprintf(`{"meeting_id": "%s", "file_path": "%s", "task_id": "%s"}`, meetingId, filePath, taskID)
 
 	ctx := context.Background()

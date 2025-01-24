@@ -1,4 +1,2 @@
 logika końca spotkania - połączenie z frontem
 endpointy do screenshot i audio
-ustalić jaki format message wysylany do mailera (file_path, email, meeting_id??)
-odkomentować wysyłanie potwierdzenia wyslania maila w email-service

@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"github.com/streadway/amqp"
 	"go.mongodb.org/mongo-driver/mongo"
+	"io"
 	"log"
 	"net/http"
 	"orchestrator-service/redis"
+	"os"
+	"path/filepath"
 )
 
 type MeetingIdResponse struct {
@@ -68,7 +71,67 @@ func (app *Config) EndMeeting(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Config) CaptureScreenshots(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
 
+	err := r.ParseMultipartForm(50 << 20)
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		log.Printf("Error parsing form: %v", err)
+		return
+	}
+
+	file, header, err := r.FormFile("screenshot")
+	if err != nil {
+		http.Error(w, "Missing screenshot file", http.StatusBadRequest)
+		log.Printf("Error retrieving file: %v", err)
+		return
+	}
+	defer file.Close()
+
+	meetingId := r.FormValue("meeting_id")
+	if meetingId == "" {
+		http.Error(w, "Missing meeting_id", http.StatusBadRequest)
+		return
+	}
+
+	basePath := "/shared-ocr"
+	meetingDir := filepath.Join(basePath, meetingId)
+
+	err = os.MkdirAll(meetingDir, os.ModePerm)
+	if err != nil {
+		http.Error(w, "Unable to create directory", http.StatusInternalServerError)
+		log.Printf("Error creating directory: %v", err)
+		return
+	}
+
+	filePath := filepath.Join(meetingDir, header.Filename)
+	out, err := os.Create(filePath)
+	if err != nil {
+		http.Error(w, "Unable to save file", http.StatusInternalServerError)
+		log.Printf("Error saving file: %v", err)
+		return
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, file)
+	if err != nil {
+		http.Error(w, "Error saving file", http.StatusInternalServerError)
+		log.Printf("Error writing file: %v", err)
+		return
+	}
+
+	log.Printf("Screenshot saved successfully in: %s", filePath)
+
+	err = app.TaskHandler.SendOcrTask(meetingId, filePath)
+	if err != nil {
+		log.Printf("Error sending OCR task: %v", err)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Screenshot uploaded successfully"))
 }
 
 func (app *Config) CaptureAudio(w http.ResponseWriter, r *http.Request) {
@@ -79,13 +142,6 @@ func (app *Config) StartTranscription(w http.ResponseWriter, r *http.Request) {
 	err := app.TaskHandler.SendTranscriptionTask("867297")
 	if err != nil {
 		log.Printf("Error sending transcription task: %v", err)
-	}
-}
-
-func (app *Config) StartOcr(w http.ResponseWriter, r *http.Request) {
-	err := app.TaskHandler.SendOcrTask("867297")
-	if err != nil {
-		log.Printf("Error sending OCR task: %v", err)
 	}
 }
 
