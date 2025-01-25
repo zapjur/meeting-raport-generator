@@ -4,3 +4,5 @@ description: Documentation for the Meeting Report Generator project
 baseurl: "/meeting-raport-generator"
 permalink: pretty
 color_scheme: dark
+source: docs
+
