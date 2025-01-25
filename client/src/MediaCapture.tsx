@@ -94,7 +94,7 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
                     method: "POST",
                     body: formData,
                   });
-                  const result = await response.json();
+                  const result = await response.text();
                   console.log("Screenshot upload response:", result);
                 } catch (err) {
                   console.error("Error sending screenshot to server:", err);
@@ -156,13 +156,16 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
       formData.append("audio", audioBlob, `audio-${Date.now()}.webm`);
       formData.append("meeting_id", meetingId);
 
-      fetch("http://127.0.0.1:8080/capture-audio", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => console.log("Audio upload response:", data))
-        .catch((err) => console.error("Error uploading audio:", err));
+      try {
+        const response = await fetch("http://127.0.0.1:8080/capture-audio", {
+          method: "POST",
+          body: formData,
+        });
+        const result = await response.text();
+        console.log("Audio upload response:", result);
+      } catch (err) {
+        console.error("Error uploading audio:", err);
+      }
     };
 
     const startNewRecording = () => {
