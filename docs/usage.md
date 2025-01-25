@@ -18,9 +18,17 @@ Follow these steps to set up and use the Meeting Report Generator.
    cd meeting-report-generator
    ```
 
-2. Start services using docker-compose:
+2. Create a `.env` file in the root directory with the following environment variables:
+   ```bash
+   GROQ_API_KEY=YOUR_API_KEY
+   HF_TOKEN=YOUR_API_KEY
+   OPENAI_API_KEY=YOUR_API_KEY
+   EMAIL_PASSWORD="YOUR_API_KEY"
+   ```
+
+3. Start services using docker-compose:
    ```bash
    docker-compose up -d
    ```
 
-3. Access the web interface at `http://localhost:3000`.
+4. Access the web interface at `http://localhost:3000`.
