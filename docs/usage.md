@@ -14,7 +14,7 @@ Follow these steps to set up and use the Meeting Report Generator.
 ## Setting Up Locally
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/meeting-report-generator.git
+   git clone https://github.com/zapjur/meeting-report-generator.git
    cd meeting-report-generator
    ```
 
