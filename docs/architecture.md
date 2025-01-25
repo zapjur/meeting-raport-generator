@@ -1,3 +1,9 @@
+---
+layout: default
+title: Architecture
+nav_order: 1
+---
+
 # System Architecture
 
 The Meeting Report Generator uses a microservices-based architecture to ensure scalability, flexibility, and maintainability.

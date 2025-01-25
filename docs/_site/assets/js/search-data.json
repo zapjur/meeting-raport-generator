@@ -1,0 +1,121 @@
+{"0": {
+    "doc": "Architecture",
+    "title": "System Architecture",
+    "content": "The Meeting Report Generator uses a microservices-based architecture to ensure scalability, flexibility, and maintainability. ",
+    "url": "/meeting-raport-generator/architecture/#system-architecture",
+    
+    "relUrl": "/architecture/#system-architecture"
+  },"1": {
+    "doc": "Architecture",
+    "title": "Architecture Overview",
+    "content": ". | Frontend: A web interface that interacts with users, sends audio fragments for transcription and screenshots for OCR. | Backend: Multiple microservices written in Go and Python handle transcription, summary generation, and PDF creation. | Database: MongoDB stores transcriptions, summaries, and OCR results. | Redis Stores temporary data and information about status of each task. | Orchestrator: A central service manages task distribution using RabbitMQ. | . Architecture Diagram . ",
+    "url": "/meeting-raport-generator/architecture/#architecture-overview",
+    
+    "relUrl": "/architecture/#architecture-overview"
+  },"2": {
+    "doc": "Architecture",
+    "title": "Data Flow",
+    "content": ". | The frontend captures audio in real-time using the Media Capture and sends 5 minutes fragments to the backend. | The Orchestrator assigns tasks to appropriate microservices: . | Transcription Service: Processes audio into text. | Summary Service: Groups transcriptions and generates summaries. | PDF Generator: Creates a structured report. | . | OCR analyzes images from virtual whiteboards or shared screens. | MongoDB stores the processed data for further use. | . ",
+    "url": "/meeting-raport-generator/architecture/#data-flow",
+    
+    "relUrl": "/architecture/#data-flow"
+  },"3": {
+    "doc": "Architecture",
+    "title": "Architecture",
+    "content": " ",
+    "url": "/meeting-raport-generator/architecture/",
+    
+    "relUrl": "/architecture/"
+  },"4": {
+    "doc": "Main",
+    "title": "Meeting Report Generator",
+    "content": "Welcome to the documentation for the Meeting Report Generator project. This application simplifies the process of creating meeting summaries, transcriptions, and reports, making meetings more productive and efficient. ",
+    "url": "/meeting-raport-generator/#meeting-report-generator",
+    
+    "relUrl": "/#meeting-report-generator"
+  },"5": {
+    "doc": "Main",
+    "title": "Key Features",
+    "content": ". | Real-time transcription of audio. | Automatic generation of PDF reports containing transcription, summary, screenshots, statistics and ocr results. | OCR for analyzing virtual whiteboards and shared screens. | Speaker identification and assignment of statements to participants. | . ",
+    "url": "/meeting-raport-generator/#key-features",
+    
+    "relUrl": "/#key-features"
+  },"6": {
+    "doc": "Main",
+    "title": "Main",
+    "content": " ",
+    "url": "/meeting-raport-generator/",
+    
+    "relUrl": "/"
+  },"7": {
+    "doc": "Microservices",
+    "title": "Microservices Overview",
+    "content": "The application consists of several microservices, each with a distinct responsibility. ",
+    "url": "/meeting-raport-generator/microservices/#microservices-overview",
+    
+    "relUrl": "/microservices/#microservices-overview"
+  },"8": {
+    "doc": "Microservices",
+    "title": "Orchestrator",
+    "content": ". | Purpose: Coordinates tasks across all microservices. | Key Functionality: . | Generates meetingID for each meeting. | Uses RabbitMQ to distribute tasks to transcription, ocr, summary, report generator, mailer services. | . | API Endpoints: . | GET /generate-meeting-id?email={email} . | Initializes a new meeting and returns a meetingID. | Saves the meetingID in Redis with status started. | Saves user email in Redis with key meetingID. | . | . | . ",
+    "url": "/meeting-raport-generator/microservices/#orchestrator",
+    
+    "relUrl": "/microservices/#orchestrator"
+  },"9": {
+    "doc": "Microservices",
+    "title": "Transcription Service",
+    "content": ". | Purpose: Converts audio fragments into text and identify speakers. | Implementation: . | Uses: . | pyannote/diarization, pyannote/segmentation, pyannote/audio, pyannote/core and pyannote/embeddings for identifying speakers. | whisper for transcribing audio. | . | . | Input: Audio fragment (base64 encoded). | Output: JSON object with transcribed text. | . ",
+    "url": "/meeting-raport-generator/microservices/#transcription-service",
+    
+    "relUrl": "/microservices/#transcription-service"
+  },"10": {
+    "doc": "Microservices",
+    "title": "Summary Service",
+    "content": ". | Purpose: Generates concise summaries of transcriptions. | Key Features: . | Groups transcription fragments into chunks. | Uses LLM (e.g., OpenAI’s API) for summarization. | . | Output: Text summary stored in MongoDB. | . ",
+    "url": "/meeting-raport-generator/microservices/#summary-service",
+    
+    "relUrl": "/microservices/#summary-service"
+  },"11": {
+    "doc": "Microservices",
+    "title": "Report Generator",
+    "content": ". | Purpose: Converts transcription, summaries, ocr results, screenshots into PDF report. | Key Features: . | Formats text into structured sections. | Stores generated PDFs in a shared volume. | . | . ",
+    "url": "/meeting-raport-generator/microservices/#report-generator",
+    
+    "relUrl": "/microservices/#report-generator"
+  },"12": {
+    "doc": "Microservices",
+    "title": "Microservices",
+    "content": " ",
+    "url": "/meeting-raport-generator/microservices/",
+    
+    "relUrl": "/microservices/"
+  },"13": {
+    "doc": "Usage",
+    "title": "Usage Instructions",
+    "content": "Follow these steps to set up and use the Meeting Report Generator. ",
+    "url": "/meeting-raport-generator/usage/#usage-instructions",
+    
+    "relUrl": "/usage/#usage-instructions"
+  },"14": {
+    "doc": "Usage",
+    "title": "Prerequisites",
+    "content": ". | Docker: Ensure Docker is installed for containerized deployment. | . ",
+    "url": "/meeting-raport-generator/usage/#prerequisites",
+    
+    "relUrl": "/usage/#prerequisites"
+  },"15": {
+    "doc": "Usage",
+    "title": "Setting Up Locally",
+    "content": ". | Clone the repository: git clone https://github.com/your-username/meeting-report-generator.git cd meeting-report-generator . | Start services using docker-compose: docker-compose up -d . | Access the web interface at http://localhost:3000. | . ",
+    "url": "/meeting-raport-generator/usage/#setting-up-locally",
+    
+    "relUrl": "/usage/#setting-up-locally"
+  },"16": {
+    "doc": "Usage",
+    "title": "Usage",
+    "content": " ",
+    "url": "/meeting-raport-generator/usage/",
+    
+    "relUrl": "/usage/"
+  }
+}

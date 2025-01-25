@@ -1,0 +1,12 @@
+theme: just-the-docs
+title: Meeting Report Generator
+description: Documentation for the Meeting Report Generator project
+baseurl: "/meeting-raport-generator"
+permalink: pretty
+markdown: kramdown
+kramdown:
+  input: GFM
+highlighter: rouge
+color_scheme: dark
+sass:
+  style: compressed
