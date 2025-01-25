@@ -1,0 +1,7 @@
+remote_theme: pmarsceill/just-the-docs
+title: Meeting Report Generator
+description: Documentation for the Meeting Report Generator project
+baseurl: "/meeting-raport-generator"
+permalink: pretty
+color_scheme: dark
+
