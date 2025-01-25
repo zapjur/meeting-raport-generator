@@ -10,10 +10,10 @@ interface MediaCaptureProps {
   meetingId: string | null;
 }
 
-// Configurable variables
-const SCREENSHOT_INTERVAL_MS = 1000; // Screenshot capture interval in milliseconds
-const AUDIO_CAPTURE_INTERVAL_MS = 10000; // Audio capture interval in milliseconds
-const FRAME_CHANGE_THRESHOLD = 0.01; // Percentage of frame change to trigger upload
+// CONF
+const SCREENSHOT_INTERVAL_MS = 2000; // 2 sek
+const AUDIO_CAPTURE_INTERVAL_MS = 60000; // minuta
+const FRAME_CHANGE_THRESHOLD = 0.3; //30 %
 
 const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -54,7 +54,6 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
     isAudioRecordingRef.current = false;
     mediaRecorderRef.current?.stop();
 
-    // Reset all references to allow re-initialization
     mediaStreamRef.current = null;
     mediaRecorderRef.current = null;
     audioChunksRef.current = [];
