@@ -1,8 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/goland,intellij,java,maven,python,react,node,dotenv,vs,matlab
 # Edit at https://www.toptal.com/developers/gitignore?templates=goland,intellij,java,maven,python,react,node,dotenv,vs,matlab
 
-client/dummy_server/screenshots
-client/dummy_server/audio
+client/mock_server/screenshots
+client/mock_server/audio
 
 mongo-data/
 logger-service-binary

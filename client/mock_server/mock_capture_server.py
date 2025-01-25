@@ -19,6 +19,13 @@ def generate_meeting_id(length=8):
 
 @app.route('/generate-meeting-id', methods=['GET'])
 def generate_meeting_id_endpoint():
+    email = request.args.get('email')
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+
+    # Print the email for testing purposes
+    print(f"Email received for meeting ID generation: {email}")
+
     meeting_id = generate_meeting_id()
     return jsonify({'meeting_id': meeting_id})
 
