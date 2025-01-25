@@ -10,7 +10,7 @@ The Meeting Report Generator uses a microservices-based architecture to ensure s
 - **Orchestrator**: A central service manages task distribution using RabbitMQ.
 
 ### Architecture Diagram
-![Architecture Diagram](/docs/assets/diagram.jpg)    
+![Architecture Diagram](assets/diagram.jpg)    
 
 ## Data Flow
 1. The frontend captures audio in real-time using the Media Capture and sends 5 minutes fragments to the backend.
