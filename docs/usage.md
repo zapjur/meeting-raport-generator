@@ -28,7 +28,7 @@ Follow these steps to set up and use the Meeting Report Generator.
 
 3. Start services using docker-compose:
    ```bash
-   docker-compose up -d
+   docker-compose up --build -d
    ```
 
 4. Access the web interface at `http://localhost:3000`.
