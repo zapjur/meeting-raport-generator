@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import MediaCapture from "./MediaCapture";
 
-const MainPage: React.FC = () => {
+interface MainPageProps {
+  email: string;
+}
+
+const MainPage: React.FC<MainPageProps> = ({ email }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [meetingId, setMeetingId] = useState<string | null>(null);
 
@@ -33,7 +37,7 @@ const MainPage: React.FC = () => {
     } else {
       // Start recording and fetch a new meeting ID
       try {
-        const response = await fetch("http://127.0.0.1:8080/generate-meeting-id");
+        const response = await fetch(`http://127.0.0.1:8080/generate-meeting-id?email=${email}`);
         const data = await response.json();
         if (data?.meeting_id) {
           setMeetingId(data.meeting_id);
@@ -45,7 +49,6 @@ const MainPage: React.FC = () => {
         setMeetingId(null);
       }
     }
-
     setIsRecording(!isRecording);
   };
 
@@ -80,28 +83,6 @@ const MainPage: React.FC = () => {
             Your Meeting ID: <span className="font-bold">{meetingId}</span>
           </p>
         )}
-      </div>
-
-      {/* Features Checklist */}
-      <div className="flex flex-col items-start text-left space-y-2 max-w-md w-full">
-        {[
-          "Scan screen share",
-          "Transcribe Voices",
-          "Create AI Summary",
-          "Create meeting report",
-          "Email it to you",
-          "Make available for download",
-        ].map((feature, index) => (
-          <div key={index} className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              checked={index !== 1 && index !== 5} // Checked for some items
-              className="form-checkbox h-5 w-5 text-purple-500 border-gray-700 rounded"
-              readOnly
-            />
-            <span className="text-gray-300 text-lg">{feature}</span>
-          </div>
-        ))}
       </div>
     </div>
   );
