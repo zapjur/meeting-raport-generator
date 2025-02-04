@@ -72,7 +72,7 @@ services:
 
   client-service:
     build:
-      context: ./client
+      context: ./src/client
       dockerfile: Dockerfile
     container_name: client
     ports:
