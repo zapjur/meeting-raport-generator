@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 declare class ImageCapture {
   constructor(track: MediaStreamTrack);
@@ -38,7 +38,6 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
 
       mediaStreamRef.current = stream;
 
-      // Ensure we clear the previous interval before setting a new one
       if (screenshotIntervalRef.current) {
         clearInterval(screenshotIntervalRef.current);
       }
@@ -53,10 +52,8 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
 
   const stopRecording = () => {
     console.log("Stopping capture...");
-    // Clear the interval to stop screenshots from being captured
     if (screenshotIntervalRef.current) clearInterval(screenshotIntervalRef.current);
 
-    // Stop the media stream tracks
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
 
     isAudioRecordingRef.current = false;
@@ -97,14 +94,11 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
 
             const currentFrameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-            // Capture the screenshot only if the frame has changed
             if (!previousFrameRef.current || compareFrames(previousFrameRef.current, currentFrameData)) {
               previousFrameRef.current = currentFrameData;
 
-              // Update the last screenshot time to the current time
               lastScreenshotTimeRef.current = now;
 
-              // Capture and upload the screenshot
               canvas.toBlob(async (blob) => {
                 if (blob) {
                   const formData = new FormData();
