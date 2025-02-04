@@ -1,3 +1,5 @@
+[Docs](https://zapjur.github.io/meeting-raport-generator/)
+
 na raz dwa trzy, kongo to my 
 
 ## Wstępny projekt UI:
