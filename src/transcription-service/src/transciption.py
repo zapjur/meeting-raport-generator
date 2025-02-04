@@ -20,7 +20,7 @@ def transcript(audio_file, speaker_id, latest_timestamp_end, meeting_id):
     """
     conn = mongo_client.connect_to_mongo_collection("transcriptions")
 
-    result = model.transcribe(audio_file, language="en")
+    result = model.transcribe(audio_file, language="pl")
     transcription_text = result["text"]
 
     # Oblicz długość fragmentu na podstawie audio_file
