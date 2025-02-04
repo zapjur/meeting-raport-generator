@@ -12,17 +12,17 @@ interface MediaCaptureProps {
 
 // CONF
 const SCREENSHOT_INTERVAL_MS = 2000; // 2 sek
-const AUDIO_CAPTURE_INTERVAL_MS = 60000; // minuta
-const FRAME_CHANGE_THRESHOLD = 0.3; //30 %
+const AUDIO_CAPTURE_INTERVAL_MS = 300000; // minuta
+const FRAME_CHANGE_THRESHOLD = 0.1; //10 %
 
 const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const previousFrameRef = useRef<ImageData | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
-  const screenshotIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const isAudioRecordingRef = useRef<boolean>(false);
+  const lastScreenshotTimeRef = useRef<number>(0);
 
   const startRecording = async () => {
     if (!meetingId) {
@@ -37,7 +37,7 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
 
       mediaStreamRef.current = stream;
 
-      screenshotIntervalRef.current = setInterval(() => captureScreenshot(stream), SCREENSHOT_INTERVAL_MS);
+      setInterval(() => captureScreenshot(stream), SCREENSHOT_INTERVAL_MS);
 
       startAudioRecording(stream);
     } catch (err) {
@@ -47,7 +47,6 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
 
   const stopRecording = () => {
     console.log("Stopping capture...");
-    if (screenshotIntervalRef.current) clearInterval(screenshotIntervalRef.current);
 
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
 
@@ -62,6 +61,12 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
   const captureScreenshot = async (stream: MediaStream) => {
     if (!meetingId) {
       console.error("Meeting ID is required to capture screenshots.");
+      return;
+    }
+
+    const now = Date.now();
+
+    if (now - lastScreenshotTimeRef.current < SCREENSHOT_INTERVAL_MS) {
       return;
     }
 
@@ -80,8 +85,11 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
           ctx.drawImage(imageBitmap, 0, 0);
 
           const currentFrameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
           if (!previousFrameRef.current || compareFrames(previousFrameRef.current, currentFrameData)) {
             previousFrameRef.current = currentFrameData;
+
+            lastScreenshotTimeRef.current = now;
 
             canvas.toBlob(async (blob) => {
               if (blob) {
