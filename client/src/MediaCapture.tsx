@@ -13,7 +13,7 @@ interface MediaCaptureProps {
 // CONF
 const SCREENSHOT_INTERVAL_MS = 2000; // 2 sek
 const AUDIO_CAPTURE_INTERVAL_MS = 20000; // 15 sek
-const FRAME_CHANGE_THRESHOLD = 0.1; //10 %
+const FRAME_CHANGE_THRESHOLD = 0.01; //10 %
 
 const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
