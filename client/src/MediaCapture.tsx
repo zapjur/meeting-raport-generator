@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 declare class ImageCapture {
   constructor(track: MediaStreamTrack);
@@ -12,7 +12,7 @@ interface MediaCaptureProps {
 
 // CONF
 const SCREENSHOT_INTERVAL_MS = 2000; // 2 sek
-const AUDIO_CAPTURE_INTERVAL_MS = 300000; // minuta
+const AUDIO_CAPTURE_INTERVAL_MS = 20000; // 15 sek
 const FRAME_CHANGE_THRESHOLD = 0.1; //10 %
 
 const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) => {
@@ -23,6 +23,7 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
   const audioChunksRef = useRef<Blob[]>([]);
   const isAudioRecordingRef = useRef<boolean>(false);
   const lastScreenshotTimeRef = useRef<number>(0);
+  const screenshotIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const startRecording = async () => {
     if (!meetingId) {
@@ -37,7 +38,12 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
 
       mediaStreamRef.current = stream;
 
-      setInterval(() => captureScreenshot(stream), SCREENSHOT_INTERVAL_MS);
+      // Ensure we clear the previous interval before setting a new one
+      if (screenshotIntervalRef.current) {
+        clearInterval(screenshotIntervalRef.current);
+      }
+
+      screenshotIntervalRef.current = setInterval(() => captureScreenshot(stream), SCREENSHOT_INTERVAL_MS);
 
       startAudioRecording(stream);
     } catch (err) {
@@ -47,7 +53,10 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
 
   const stopRecording = () => {
     console.log("Stopping capture...");
+    // Clear the interval to stop screenshots from being captured
+    if (screenshotIntervalRef.current) clearInterval(screenshotIntervalRef.current);
 
+    // Stop the media stream tracks
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
 
     isAudioRecordingRef.current = false;
@@ -73,46 +82,54 @@ const MediaCapture: React.FC<MediaCaptureProps> = ({ isRecording, meetingId }) =
     if (canvasRef.current) {
       const canvas = canvasRef.current;
       const videoTrack = stream.getVideoTracks()[0];
-      const imageCapture = new ImageCapture(videoTrack);
 
-      try {
-        const imageBitmap = await imageCapture.grabFrame();
-        const ctx = canvas.getContext("2d");
+      if (videoTrack.readyState === "live") {
+        const imageCapture = new ImageCapture(videoTrack);
 
-        if (ctx) {
-          canvas.width = imageBitmap.width;
-          canvas.height = imageBitmap.height;
-          ctx.drawImage(imageBitmap, 0, 0);
+        try {
+          const imageBitmap = await imageCapture.grabFrame();
+          const ctx = canvas.getContext("2d");
 
-          const currentFrameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          if (ctx) {
+            canvas.width = imageBitmap.width;
+            canvas.height = imageBitmap.height;
+            ctx.drawImage(imageBitmap, 0, 0);
 
-          if (!previousFrameRef.current || compareFrames(previousFrameRef.current, currentFrameData)) {
-            previousFrameRef.current = currentFrameData;
+            const currentFrameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-            lastScreenshotTimeRef.current = now;
+            // Capture the screenshot only if the frame has changed
+            if (!previousFrameRef.current || compareFrames(previousFrameRef.current, currentFrameData)) {
+              previousFrameRef.current = currentFrameData;
 
-            canvas.toBlob(async (blob) => {
-              if (blob) {
-                const formData = new FormData();
-                formData.append("screenshot", blob, `screenshot-${Date.now()}.png`);
-                formData.append("meeting_id", meetingId);
+              // Update the last screenshot time to the current time
+              lastScreenshotTimeRef.current = now;
 
-                try {
-                  const response = await fetch("http://127.0.0.1:8080/capture-screenshots", {
-                    method: "POST",
-                    body: formData,
-                  });
-                  const result = await response.text();
-                  console.log("Screenshot upload response:", result);
-                } catch (err) {
-                  console.error("Error sending screenshot to server:", err);
+              // Capture and upload the screenshot
+              canvas.toBlob(async (blob) => {
+                if (blob) {
+                  const formData = new FormData();
+                  formData.append("screenshot", blob, `screenshot-${Date.now()}.png`);
+                  formData.append("meeting_id", meetingId);
+
+                  try {
+                    const response = await fetch("http://127.0.0.1:8080/capture-screenshots", {
+                      method: "POST",
+                      body: formData,
+                    });
+                    const result = await response.text();
+                    console.log("Screenshot upload response:", result);
+                  } catch (err) {
+                    console.error("Error sending screenshot to server:", err);
+                  }
                 }
-              }
-            }, "image/png");
+              }, "image/png");
+            }
           }
+        } catch (err) {
+          console.error("Error capturing frame:", err);
         }
-      } catch (err) {
-        console.error("Error capturing frame:", err);
+      } else {
+        console.error("Video track is not in a valid state.");
       }
     }
   };
