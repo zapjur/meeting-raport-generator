@@ -55,7 +55,11 @@ Please provide a precise summary of the following meeting transcription:
 
 ` + transcription + `
 
-Return only the summary without any additional text or metadata.
+After the summary, return a field named "statistics" containing:
+- The total word count of the transcription.
+- A breakdown of the word count spoken by each speaker.
+
+Return the response in a structured format, ensuring clarity and readability.
 `
 
 	messages := []Message{
